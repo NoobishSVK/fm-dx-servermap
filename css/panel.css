@@ -124,7 +124,7 @@ div[class^="tuner-status-"] {
     background-color: #ff5733;
 }
 
-.logo-container {
+.tuner:last-of-type {
     border-bottom: 1px solid #444;
 }
 
