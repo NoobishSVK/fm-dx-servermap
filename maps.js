@@ -160,7 +160,7 @@ function onTunerClick(event, markerIndex) {
 }
 
 function parseMarkdown() {
-    var input = $("#current-tuner-desc").text();
+    var input = escapeHtml($("#current-tuner-desc").text());
     var parsed = input;
 
     var grayTextRegex = /--(.*?)--/g;
@@ -176,4 +176,16 @@ function parseMarkdown() {
     parsed = parsed.replace(breakLineRegex, '<br>');
 
     $("#current-tuner-desc").html(parsed);
+}
+
+function escapeHtml(text) {
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }
