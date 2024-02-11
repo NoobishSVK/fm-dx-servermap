@@ -96,20 +96,6 @@ $(document).ready(function () {
         $('.panel-content-all').addClass('open');
     });
 
-    tunersOnline.forEach((tuner, index) => {
-        tunerInfo = `<div class="tuner" data-index="${index}">
-        <div class="tuner-flag"><span class="fi fi-${tuner.country}"></span></div>
-            <div class="tuner-basic-info">
-                <h2>${tuner.name}</h2>
-                <p>${tuner.url}</p>
-            </div>
-            <div class="tuner-status"><div class="tuner-status-${tuner.status}"></div></div>
-        </div>`;
-        $('.tuner-list').append(tunerInfo);
-    });
-
-    $("#receivers-online-count").text(tunersOnline.length);
-
     $('.tuner').on('click', function () {
         const index = $(this).data('index');
         const marker = markers[index];
@@ -141,6 +127,19 @@ $(document).ready(function () {
 function getTuners() {
     $.get("https://list.fmdx.pl/api/", function(data) {
         tunersOnline = JSON.parse(data);
+        tunersOnline.forEach((tuner, index) => {
+            tunerInfo = `<div class="tuner" data-index="${index}">
+            <div class="tuner-flag"><span class="fi fi-${tuner.country}"></span></div>
+                <div class="tuner-basic-info">
+                    <h2>${tuner.name}</h2>
+                    <p>${tuner.url}</p>
+                </div>
+                <div class="tuner-status"><div class="tuner-status-${tuner.status}"></div></div>
+            </div>`;
+            $('.tuner-list').append(tunerInfo);
+        });
+    
+        $("#receivers-online-count").text(tunersOnline.length);
         initMap();
     });
 }
