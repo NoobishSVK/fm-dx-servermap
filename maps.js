@@ -152,7 +152,28 @@ function onTunerClick(event, markerIndex) {
     $('#current-tuner-bitrate').text(currentMarker.audioQuality);
     $('#current-tuner-link').attr('href', currentMarker.url);
 
+    parseMarkdown();
+
     $('.panel').addClass('open');
     $('.panel-content-all').removeClass('open');
     $('.panel-content-current').addClass('open');
+}
+
+function parseMarkdown() {
+    var input = $("#current-tuner-desc").text();
+    var parsed = input;
+
+    var grayTextRegex = /--(.*?)--/g;
+    parsed = parsed.replace(grayTextRegex, '<span class="text-gray">$1</span>');
+
+    var boldRegex = /\*\*(.*?)\*\*/g;
+    parsed = parsed.replace(boldRegex, '<strong>$1</strong>');
+
+    var italicRegex = /\*(.*?)\*/g;
+    parsed = parsed.replace(italicRegex, '<em>$1</em>');
+
+    var breakLineRegex = /\\n/g;
+    parsed = parsed.replace(breakLineRegex, '<br>');
+
+    $("#current-tuner-desc").html(parsed);
 }
