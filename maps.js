@@ -5,7 +5,9 @@
  * status: 0 = online
  */
 
-const tunersOnline = [{
+let tunersOnline = [];
+
+/*const tunersOnline = [{
     name: 'Noobish\'s Tuner',
     coords: [50.356694, 15.924528],
     url: 'http://xdr.noobish.eu:42069',
@@ -68,10 +70,11 @@ const tunersOnline = [{
     audioQuality: '192k',
     country: 'cz',
     status: 0 
-}];
+}];*/
 
 $(document).ready(function () {
-    initMap();
+
+    getTuners();
     const panel = $('.panel');
     const tunerList = $('.panel-content-all');
     const currentTuner = $('.panel-content-current');
@@ -135,17 +138,24 @@ $(document).ready(function () {
     });
 });
 
-function initMap () {
+function getTuners() {
+    $.get("https://list.fmdx.pl/api/", function(data) {
+        tunersOnline = JSON.parse(data);
+        initMap();
+    });
+}
+
+function initMap (tunersOnline) {
     markers = tunersOnline.map(tuner => {
         let fillColor;
         switch (tuner.status) {
-            case 2:
+            case 1:
                 fillColor = '#ff5733'; // Red
                 break;
-            case 1:
+            case 0:
                 fillColor = '#ffa500'; // Orange
                 break;
-            case 0:
+            case 2:
             default:
                 fillColor = '#32cd32'; // Green
                 break;
