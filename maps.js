@@ -126,7 +126,7 @@ $(document).ready(function () {
 
 function getTuners() {
     $.get("https://list.fmdx.pl/api/", function(data) {
-        tunersOnline = JSON.parse(data.dataset);
+        tunersOnline = ('dataset' in data) ? data['dataset'] : [];
         tunersOnline.forEach((tuner, index) => {
             tunerInfo = `<div class="tuner" data-index="${index}">
             <div class="tuner-flag"><span class="fi fi-${tuner.country}"></span></div>
@@ -148,13 +148,13 @@ function initMap (tunersOnline) {
     markers = tunersOnline.map(tuner => {
         let fillColor;
         switch (tuner.status) {
-            case 1:
+            case 2:
                 fillColor = '#ff5733'; // Red
                 break;
             case 0:
                 fillColor = '#ffa500'; // Orange
                 break;
-            case 2:
+            case 1:
             default:
                 fillColor = '#32cd32'; // Green
                 break;
