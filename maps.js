@@ -126,7 +126,7 @@ $(document).ready(function () {
 
 function getTuners() {
     $.get("https://list.fmdx.pl/api/", function(data) {
-        tunersOnline = JSON.parse(data);
+        tunersOnline = JSON.parse(data.dataset);
         tunersOnline.forEach((tuner, index) => {
             tunerInfo = `<div class="tuner" data-index="${index}">
             <div class="tuner-flag"><span class="fi fi-${tuner.country}"></span></div>
