@@ -113,11 +113,11 @@ div[class^="tuner-status-"] {
   }
 
 .tuner-status-0 {
-    background-color: #32cd32;
+    background-color: #ffa500;
 }
 
 .tuner-status-1 {
-    background-color: #ffa500;
+    background-color: #32cd32;
 }
 
 .tuner-status-2 {
