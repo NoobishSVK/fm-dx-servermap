@@ -116,6 +116,7 @@ function initMap (tunersOnline) {
         zoomOnScroll: true,
         zoomButtons: true,
         draggable: true,
+        zoomMax: 24,
         markers: markers,
         markersSelectableOne: true,
         backgroundColor: '#333',
