@@ -80,8 +80,21 @@ function getTuners() {
     });
 }
 
-function initMap (tunersOnline) {
-    markers = tunersOnline.map(tuner => {
+function initMap(tunersOnline) {
+    // Function to generate a random number between min and max (inclusive)
+    function getRandomNumber(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    // Function to generate a random direction vector
+    function getRandomDirectionVector() {
+        const angle = getRandomNumber(0, 2 * Math.PI);
+        const x = Math.cos(angle);
+        const y = Math.sin(angle);
+        return { x, y };
+    }
+
+    markers = tunersOnline.map((tuner, index) => {
         let fillColor;
         switch (tuner.status) {
             case 0:
@@ -94,6 +107,21 @@ function initMap (tunersOnline) {
             case 2:
                 fillColor = '#ff5733'; // Red
                 break;
+        }
+
+        // Adjust position if another marker is very close
+        for (let i = 0; i < index; i++) {
+            const otherMarker = markers[i];
+            const latDiff = Math.abs(tuner.coords[0] - otherMarker.coords[0]);
+            const lonDiff = Math.abs(tuner.coords[1] - otherMarker.coords[1]);
+            if (latDiff < 0.1 && lonDiff < 0.1) {
+                // Generate a random direction vector
+                const direction = getRandomDirectionVector();
+                // Move the marker position by 0.1 degrees in that direction
+                tuner.coords[0] += direction.x * 0.1;
+                tuner.coords[1] += direction.y * 0.1;
+                break;
+            }
         }
 
         return {
@@ -116,7 +144,7 @@ function initMap (tunersOnline) {
         zoomOnScroll: true,
         zoomButtons: true,
         draggable: true,
-        zoomMax: 24,
+        zoomMax: 36,
         markers: markers,
         markersSelectableOne: true,
         backgroundColor: '#333',
