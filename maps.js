@@ -6,6 +6,7 @@
  */
 
 let tunersOnline = [];
+let markers = [];
 
 $(document).ready(function () {
 
