@@ -5,10 +5,7 @@ FM-DX Servermap is an interactive map of receivers for the FM-DX Webserver proje
 ## Features
 
 - **A handy quick list:** Access and control any TEF6686 / F1HD receiver using the FM-DX Webserver software from anywhere in the world.
-- **Responsive interface:** It'đ easy to navigate through the map even using your phone!
-
-##  Features to be added
-- Make the map dynmaic with the amount of current web-servers
+- **Responsive interface:** It's easy to navigate through the map even using your phone!
 
 ## Community
 Join our **Discord community** to get the latest development update info, share feedback and receive support.
