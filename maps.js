@@ -1,12 +1,4 @@
-
-/**
- * status: 2 = locked
- * status: 1 = unreachable
- * status: 0 = online
- */
-
 let tunersOnline = [];
-let markers = [];
 
 $(document).ready(function () {
 
@@ -14,7 +6,6 @@ $(document).ready(function () {
     const panel = $('.panel');
     const tunerList = $('.panel-content-all');
     const currentTuner = $('.panel-content-current');
-    
 
     $(".panel-sidebar").on("click", function () {
         if(currentTuner.hasClass('open')) {
@@ -32,26 +23,16 @@ $(document).ready(function () {
         $('.panel-content-all').addClass('open');
     });
 
-    function filterTuners(searchTerm) {
-        $('.tuner').each(function () {
-            const tunerName = $(this).find('.tuner-basic-info h2').text();
-            if (tunerName.toLowerCase().includes(searchTerm.toLowerCase())) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
-    }
-
     // Add event listener to the search input
     $('#tuner-search').on('input', function () {
         const searchTerm = $(this).val();
-        filterTuners(searchTerm);
+        filterTuners(searchTerm, 'name');
     });
 });
 
 function getTuners() {
     $.get("https://list.fmdx.pl/api/", function(data) {
+    //$.get("./data.json", function(data) { // DEBUGGING PURPOSES
         tunersOnline = ('dataset' in data) ? data['dataset'] : [];
         initMap(tunersOnline);
 
@@ -77,57 +58,100 @@ function getTuners() {
             onTunerClick(event, index);
         });
 
+            
+        var isDragging = false;
+
+        $(".jvm-region").on("mousedown", function() {
+            isDragging = false;
+        }).on("mousemove", function() {
+            isDragging = true;
+        }).on("mouseup", function(event) {
+            if (!isDragging) {
+                var clickedElement = $(this);
+                const searchBar = $('#tuner-search');
+                searchBar.val('Country: ' + clickedElement.attr('data-code'));
+                filterTuners(clickedElement.attr('data-code'), 'country');
+                if (!$('.panel').hasClass('open')) {
+                    $('#open-all-tuners').trigger('click');
+                } else {
+                    $('.panel-content-current').removeClass('open');
+                    $('.panel-content-all').addClass('open');
+                }
+            }
+        });             
+
         $("#receivers-online-count").text(tunersOnline.length);
     });
 }
 
-function initMap(tunersOnline) {
-    // Function to generate a random number between min and max (inclusive)
-    function getRandomNumber(min, max) {
-        return Math.random() * (max - min) + min;
-    }
+function filterTuners(searchTerm, type) {
+    let searchData;
+    $('.tuner').each(function () {
+        
+        if(type && type == 'country') {
+            searchData = $(this).find('.tuner-flag span').attr('class');
+        } else {
+            searchData = $(this).find('.tuner-basic-info h2').text();
+        }
+        if (searchData.toLowerCase().includes(searchTerm.toLowerCase())) {
+            $(this).show();
+        } else {
+            $(this).hide();
+        }
+    });
+}
 
-    // Function to generate a random direction vector
-    function getRandomDirectionVector() {
-        const angle = getRandomNumber(0, 2 * Math.PI);
-        const x = Math.cos(angle);
-        const y = Math.sin(angle);
-        return { x, y };
-    }
+function initMap (tunersOnline) {
+    /**
+     * status: 2 = locked
+     * status: 1 = unreachable
+     * status: 0 = online
+     */
 
-    markers = tunersOnline.map((tuner, index) => {
+    let processedCoordinates = [];
+
+    markers = tunersOnline.map(tuner => {
         let fillColor;
         switch (tuner.status) {
             case 0:
             default:
-                fillColor = '#ffa500'; // Orange
+                fillColor = '#ffee00'; // Orange
                 break;
             case 1:
-                fillColor = '#32cd32'; // Green
+                fillColor = '#21bf63'; // Green
                 break;
             case 2:
-                fillColor = '#ff5733'; // Red
+                fillColor = '#ff4747'; // Red
                 break;
         }
-
-        // Adjust position if another marker is very close
-        for (let i = 0; i < index; i++) {
-            const otherMarker = markers[i];
-            const latDiff = Math.abs(tuner.coords[0] - otherMarker.coords[0]);
-            const lonDiff = Math.abs(tuner.coords[1] - otherMarker.coords[1]);
-            if (latDiff < 0.1 && lonDiff < 0.1) {
-                // Generate a random direction vector
-                const direction = getRandomDirectionVector();
-                // Move the marker position by 0.1 degrees in that direction
-                tuner.coords[0] += direction.x * 0.1;
-                tuner.coords[1] += direction.y * 0.1;
+    
+        // Convert latitude and longitude to numbers
+        const latitude = parseFloat(tuner.coords[0]);
+        const longitude = parseFloat(tuner.coords[1]);
+    
+        // Adjust coordinates if necessary
+        let newLatitude = latitude;
+        let newLongitude = longitude;
+    
+        // Check for nearby markers
+        for (const coord of processedCoordinates) {
+            const [prevLat, prevLon] = coord;
+            const latDiff = Math.abs(prevLat - latitude);
+            const lonDiff = Math.abs(prevLon - longitude);
+            if (latDiff < 0.075 && lonDiff < 0.075) {
+                const randomDirection = Math.random() < 0.5 ? -1 : 1;
+                const randomOffset = Math.random() * 0.075 * randomDirection;
+                newLatitude = prevLat + randomOffset;
+                newLongitude = prevLon + (0.075 - Math.abs(randomOffset)) * (Math.random() < 0.5 ? -1 : 1);
                 break;
             }
         }
-
+    
+        processedCoordinates.push([newLatitude, newLongitude]);
+    
         return {
             name: tuner.name,
-            coords: tuner.coords,
+            coords: [newLatitude.toString(), newLongitude.toString()],
             desc: tuner.desc,
             url: tuner.url,
             audioChannels: tuner.audioChannels,
@@ -138,28 +162,31 @@ function initMap(tunersOnline) {
             }
         };
     });
-
+    
     const map = new jsVectorMap({
         selector: '#map',
         map: 'world',
         zoomOnScroll: true,
         zoomButtons: true,
         draggable: true,
-        zoomMax: 36,
+        zoomMax: 48,
         markers: markers,
         markersSelectableOne: true,
-        backgroundColor: '#333',
+        backgroundColor: '#262626',
         regionStyle: {
             initial: {
-                fill: '#666'
+                fill: '#555',
+                stroke: '#555',
+                'stroke-width': 0.3,
+                'stroke-linecap': 'round',
+                'stroke-linejoin': 'round',
             }
         },
         onRegionTooltipShow(event, tooltip, code) {
-            event.preventDefault();
-            tooltip.hide();
         },
         onMarkerClick(event, markerIndex) {
             onTunerClick(event, markerIndex);
+            
         },
         onMarkerTooltipShow(event, tooltip, markerIndex){
             const currentMarker = markers[markerIndex];
@@ -180,7 +207,8 @@ function onTunerClick(event, markerIndex) {
     $('#current-tuner-desc').text(currentMarker.desc);
     $('#current-tuner-channels').text(currentMarker.audioChannels);
     $('#current-tuner-bitrate').text(currentMarker.audioQuality);
-    $('#current-tuner-link').attr('href', currentMarker.url);
+    $('.current-tuner-link').find('span').text(currentMarker.url);
+    $('.current-tuner-link').attr('href', currentMarker.url);
 
     parseMarkdown();
 

@@ -21,6 +21,8 @@ body {
     width: 32px;
     justify-content: center;
     align-items:center;
+    border: 1px solid #555;
+    background-color: #444;
 }
 
 .jvm-zoomout {
