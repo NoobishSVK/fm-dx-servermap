@@ -21,6 +21,8 @@ $(document).ready(function () {
         $('.panel').addClass('open');
         $('.panel-content-current').removeClass('open');
         $('.panel-content-all').addClass('open');
+        $('#tuner-search').val('');
+        filterTuners("");
     });
 
     // Add event listener to the search input
@@ -157,6 +159,7 @@ function initMap (tunersOnline) {
             audioChannels: tuner.audioChannels,
             audioQuality: tuner.audioQuality,
             country: tuner.country,
+            contact: tuner.contact,
             style: {
                 fill: fillColor
             }
@@ -207,6 +210,9 @@ function onTunerClick(event, markerIndex) {
     $('#current-tuner-desc').text(currentMarker.desc);
     $('#current-tuner-channels').text(currentMarker.audioChannels);
     $('#current-tuner-bitrate').text(currentMarker.audioQuality);
+    if(currentMarker.contact?.length > 0) {
+        $('#current-tuner-contact').text(currentMarker.contact);
+    }
     $('.current-tuner-link').find('span').text(currentMarker.url);
     $('.current-tuner-link').attr('href', currentMarker.url);
 
@@ -230,7 +236,7 @@ function parseMarkdown() {
     var italicRegex = /\*(.*?)\*/g;
     parsed = parsed.replace(italicRegex, '<em>$1</em>');
 
-    var breakLineRegex = /\\n/g;
+    var breakLineRegex = /\n/g;
     parsed = parsed.replace(breakLineRegex, '<br>');
 
     $("#current-tuner-desc").html(parsed);

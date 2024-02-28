@@ -34,6 +34,14 @@ a {
     color: #888;
 }
 
+p {
+    font-weight: 300;
+}
+
+strong {
+    font-weight: 700;
+}
+
 a:visited {
     color: #888;
 }
@@ -54,7 +62,7 @@ a.button {
     padding: 15px;
 }
 
-button:hover {
+a.button:hover {
     background-color: #ccc;
 }
 
