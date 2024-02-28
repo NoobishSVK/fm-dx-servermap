@@ -212,6 +212,8 @@ function onTunerClick(event, markerIndex) {
     $('#current-tuner-bitrate').text(currentMarker.audioQuality);
     if(currentMarker.contact?.length > 0) {
         $('#current-tuner-contact').text(currentMarker.contact);
+    } else {
+        $('#current-tuner-contact').text('No contact available.');
     }
     $('.current-tuner-link').find('span').text(currentMarker.url);
     $('.current-tuner-link').attr('href', currentMarker.url);
