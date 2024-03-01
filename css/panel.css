@@ -53,6 +53,10 @@
     display: none;
 }
 
+.panel .panel-content-current {
+    overflow-y: auto;
+}
+
 .panel .panel-content-current.open, .panel .panel-content-all.open {
     display:flex;
     flex-direction:column;
@@ -133,6 +137,7 @@ div[class^="tuner-status-"] {
     font-size: 32px;
     max-width: 90%;
     margin: 0 auto;
+    font-weight: 300;
 }
 
 .current-tuner-link.link {
