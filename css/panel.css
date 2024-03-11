@@ -28,6 +28,24 @@
     margin: 0;
 }
 
+.panel .text-bright-underline:hover {
+    text-decoration: underline;
+}
+
+.panel table {
+    width: 80%;
+    margin: auto;
+}
+
+.panel table th {
+    width: 100px;
+}
+
+.panel table td {
+    font-size: 28px;
+    font-weight: 100;
+}
+
 .panel .panel-sidebar {
     width: 64px;
     height: 100%;
@@ -128,6 +146,7 @@ div[class^="tuner-status-"] {
 .tuner-status-2 {
     background-color: #ff4747;
 }
+
 
 .online-status {
     border-top: 1px solid #444;

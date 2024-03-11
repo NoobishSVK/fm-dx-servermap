@@ -41,8 +41,24 @@
       </div>
       <div class="tuner-list"></div>
       <div class="online-status">
-        <h2 style="margin: 0;">Receivers online:</h2>
-        <span id="receivers-online-count" style="font-size: 42px; font-weight: 200;"></span>
+        <table>
+          <thead>
+            <th class="text-green">Available</th>
+            <th class="text-red">Locked</th>
+            <th class="text-yellow">Unreachable</th>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="status1-count">adsf</td>
+              <td id="status2-count">asdf</td>
+              <td id="status0-count">asdf</td>
+            </tr>
+          </tbody>
+        </table>
+        <!--<span id="receivers-online-count" style="font-size: 42px; font-weight: 200;"></span>-->
+        <p style="margin-bottom: 10px;">
+          [<a class="text-bright-underline text-green" href="https://github.com/noobishsvk/fm-dx-webserver/" target="_blank">Set up your own Webserver!</a>]
+        </p>
       </div>
     </div>
 
@@ -77,6 +93,6 @@
     <img class="logo" src="openradio.png" alt="OpenRadio">
   </div>
   
-  <script src="maps.js?ver=20240228"></script>
+  <script src="maps.js?ver=20240311"></script>
 </body>
 </html>

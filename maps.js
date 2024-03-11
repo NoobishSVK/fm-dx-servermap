@@ -18,9 +18,7 @@ $(document).ready(function () {
     });
 
     $("#open-all-tuners").on("click", function () {
-        $('.panel').addClass('open');
-        $('.panel-content-current').removeClass('open');
-        $('.panel-content-all').addClass('open');
+        openMenu();
         $('#tuner-search').val('');
         filterTuners("");
     });
@@ -31,6 +29,12 @@ $(document).ready(function () {
         filterTuners(searchTerm, 'name');
     });
 });
+
+function openMenu() {
+    $('.panel').addClass('open');
+    $('.panel-content-current').removeClass('open');
+    $('.panel-content-all').addClass('open');
+}
 
 function getTuners() {
     $.get("https://list.fmdx.pl/api/", function(data) {
@@ -74,7 +78,7 @@ function getTuners() {
                 searchBar.val('Country: ' + clickedElement.attr('data-code'));
                 filterTuners(clickedElement.attr('data-code'), 'country');
                 if (!$('.panel').hasClass('open')) {
-                    $('#open-all-tuners').trigger('click');
+                    openMenu();
                 } else {
                     $('.panel-content-current').removeClass('open');
                     $('.panel-content-all').addClass('open');
@@ -82,7 +86,21 @@ function getTuners() {
             }
         });             
 
-        $("#receivers-online-count").text(tunersOnline.length);
+        var countStatus0 = tunersOnline.filter(function(tuner) {
+            return tuner.status === 0;
+        }).length;
+
+        var countStatus1 = tunersOnline.filter(function(tuner) {
+            return tuner.status === 1;
+        }).length;
+
+        var countStatus2 = tunersOnline.filter(function(tuner) {
+            return tuner.status === 2;
+        }).length;
+
+        $("#status0-count").text(countStatus0);
+        $("#status1-count").text(countStatus1);
+        $("#status2-count").text(countStatus2);
     });
 }
 
