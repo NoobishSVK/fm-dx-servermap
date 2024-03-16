@@ -179,7 +179,7 @@ function initMap (tunersOnline) {
             audioQuality: tuner.audioQuality,
             country: tuner.country,
             contact: tuner.contact,
-            device: tuner.device,
+            device: tuner.tuner,
             bwLimit: tuner.bwLimit,
             version: tuner.version,
             style: {
