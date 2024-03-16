@@ -89,7 +89,7 @@ input[type="text"]:focus {
     position: absolute;
     left: 50%;
     transform: translate(-50%, 0);
-    bottom: 0;
+    bottom: 20px;
     text-align: center;
 }
 

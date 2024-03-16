@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsvectormap/1.5.3/css/jsvectormap.min.css" type="text/css" media="screen"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" type="text/css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
-  <link rel="stylesheet" href="css/entry.css" type="text/css">
+  <link rel="stylesheet" href="css/entry.css?ver=20240316" type="text/css">
   <style>
     body {
       margin: 0;
@@ -49,13 +49,12 @@
           </thead>
           <tbody>
             <tr>
-              <td id="status1-count">adsf</td>
-              <td id="status2-count">asdf</td>
-              <td id="status0-count">asdf</td>
+              <td id="status1-count"></td>
+              <td id="status2-count"></td>
+              <td id="status0-count"></td>
             </tr>
           </tbody>
         </table>
-        <!--<span id="receivers-online-count" style="font-size: 42px; font-weight: 200;"></span>-->
         <p style="margin-bottom: 10px;">
           [<a class="text-bright-underline text-green" href="https://github.com/noobishsvk/fm-dx-webserver/" target="_blank">Set up your own Webserver!</a>]
         </p>
@@ -63,36 +62,31 @@
     </div>
 
     <div class="panel-content-current">
-      <h2 class="m-0" style="font-size: 32px;font-weight: 200;">Receiver Map</h2>
-      <p class="m-0" style="font-size: 12px;">by Noobish, kkonradpl & the OpenRadio community</p>
       <div class="logo-container">
         <img class="logo" src="openradio.png" alt="OpenRadio" height="50">
       </div>
-      <div id="current-tuner-country" style="font-size: 64px;margin-top: 30px;"></div>
+      <div id="current-tuner-country" style="font-size: 38px;margin-top: 30px;"></div>
       <h2 id="current-tuner-name"></h2>
+      <a href="#" target="_blank" class="current-tuner-link button">Connect</a>
+      <a href="#" target="_blank" class="text-small current-tuner-link link"><span></span></a>
       
       <h3>Description:</h3>
       <p id="current-tuner-desc">adsf</p>
       
-
-      <h3>Audio:</h3>
-      <p>
-        <strong>Channels: </strong> <span id="current-tuner-channels"></span><br>
-        <strong>Bitrate: </strong> <span id="current-tuner-bitrate"></span>
-      </p>
+      <h3>Miscellaneous info:</h3>
+      <p id="current-tuner-device"></p>
+      <p id="current-tuner-limits"></p>
+      <p><strong>Audio quality:</strong> <span id="current-tuner-bitrate"></span>bps (<span id="current-tuner-channels"></span>)</p>
 
       <h3>Owner contact:</h3>
       <p id="current-tuner-contact">No contact available.</p>
-      
-      <a href="#" target="_blank" class="current-tuner-link link"><span></span></a>
-      <a href="#" target="_blank" class="current-tuner-link button">Connect</a>
+      <p class="text-small" style="margin: 20px auto;" id="current-tuner-version">Webserver version <span id="webserver-version">1.1.4</span></p>
     </div>
   </div>
   <div class="openradio-logo">
-    <a id="open-all-tuners" class="button">Receiver List</a>
-    <img class="logo" src="openradio.png" alt="OpenRadio">
+    <a id="open-all-tuners" class="button">Receivers</a>
   </div>
   
-  <script src="maps.js?ver=20240311"></script>
+  <script src="maps.js?ver=20240316"></script>
 </body>
 </html>

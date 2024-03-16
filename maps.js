@@ -105,14 +105,15 @@ function getTuners() {
 }
 
 function filterTuners(searchTerm, type) {
-    let searchData;
     $('.tuner').each(function () {
-        
+        let searchData;
         if(type && type == 'country') {
-            searchData = $(this).find('.tuner-flag span').attr('class');
+            let countryClass = $(this).find('.tuner-flag span').attr('class');
+            searchData = countryClass.split('fi-')[1]; // Extract string after "fi-"
         } else {
             searchData = $(this).find('.tuner-basic-info h2').text();
         }
+        
         if (searchData.toLowerCase().includes(searchTerm.toLowerCase())) {
             $(this).show();
         } else {
@@ -178,6 +179,9 @@ function initMap (tunersOnline) {
             audioQuality: tuner.audioQuality,
             country: tuner.country,
             contact: tuner.contact,
+            device: tuner.device,
+            bwLimit: tuner.bwLimit,
+            version: tuner.version,
             style: {
                 fill: fillColor
             }
@@ -226,13 +230,25 @@ function onTunerClick(event, markerIndex) {
     $('#current-tuner-country').html('<span class="fi fi-'+ currentMarker.country + '"></span>')
     $('#current-tuner-name').text(currentMarker.name);
     $('#current-tuner-desc').text(currentMarker.desc);
-    $('#current-tuner-channels').text(currentMarker.audioChannels);
-    $('#current-tuner-bitrate').text(currentMarker.audioQuality);
-    if(currentMarker.contact?.length > 0) {
-        $('#current-tuner-contact').text(currentMarker.contact);
+    
+    currentMarker.audioChannels == 2 ? $('#current-tuner-channels').text('Stereo') : $('#current-tuner-channels').text('Mono');
+
+    if(currentMarker.device) {
+        switch(currentMarker.device) {
+            case 'tef': $('#current-tuner-device').html('<strong>Device: </strong> TEF668x'); break;
+            case 'xdr': $('#current-tuner-device').html('<strong>Device: </strong> Sony XDR'); break;
+            case 'sdr': $('#current-tuner-device').html('<strong>Device: </strong> SDR (RTL-SDR or AirSpy)'); break;
+        }
     } else {
-        $('#current-tuner-contact').text('No contact available.');
+        $('#current-tuner-device').empty();
     }
+
+    currentMarker.bwLimit?.length > 1 ? $('#current-tuner-limits').html('<strong>Limit: </strong>' + currentMarker.bwLimit) : $('#current-tuner-limits').empty();
+    currentMarker.version ? $('#current-tuner-version').text('Webserver version v' + currentMarker.version) : $('#current-tuner-version').empty();
+    currentMarker.contact?.length > 0 ? $('#current-tuner-contact').text(currentMarker.contact) : $('#current-tuner-contact').text('No contact available.');
+
+    $('#current-tuner-bitrate').text(currentMarker.audioQuality);
+
     $('.current-tuner-link').find('span').text(currentMarker.url);
     $('.current-tuner-link').attr('href', currentMarker.url);
 

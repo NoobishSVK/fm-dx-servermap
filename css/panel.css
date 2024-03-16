@@ -32,6 +32,10 @@
     text-decoration: underline;
 }
 
+.panel .text-small {
+    font-size: 12px;
+}
+
 .panel table {
     width: 80%;
     margin: auto;
@@ -66,7 +70,7 @@
 .panel .panel-content-current, .panel .panel-content-all {
     width: 100%;
     text-align: center;
-    padding-top: 25px;
+    padding-top: 5px;
     color: #aaa;
     display: none;
 }
@@ -153,19 +157,19 @@ div[class^="tuner-status-"] {
 }
 
 #current-tuner-name {
-    font-size: 32px;
+    font-size: 26px;
     max-width: 90%;
     margin: 0 auto;
     font-weight: 300;
 }
 
 .current-tuner-link.link {
-    margin: auto;
+    margin: 0 auto;
     margin-bottom: 10px;
 }
 
 .current-tuner-link.button {
-    margin-top: 0;
+    margin: 20px auto 3px auto;
 }
 
 @media (max-width: 768px) {
