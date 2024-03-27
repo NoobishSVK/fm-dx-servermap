@@ -43,7 +43,7 @@ function getTuners() {
         initMap(tunersOnline);
 
         tunersOnline.forEach((tuner, index) => {
-            tunerInfo = `<div class="tuner" data-index="${index}">
+            tunerInfo = `<div class="tuner" data-index="${index}" data-search="${tuner.country} ${tuner.name} ${tuner.url} ${tuner.status} ${tuner.version} ${tuner.tuner}">
             <div class="tuner-flag"><span class="fi fi-${tuner.country}"></span></div>
                 <div class="tuner-basic-info">
                     <h2>${tuner.name}</h2>
@@ -111,7 +111,7 @@ function filterTuners(searchTerm, type) {
             let countryClass = $(this).find('.tuner-flag span').attr('class');
             searchData = countryClass.split('fi-')[1]; // Extract string after "fi-"
         } else {
-            searchData = $(this).find('.tuner-basic-info h2').text();
+            searchData = $(this).data('search');
         }
         
         if (searchData.toLowerCase().includes(searchTerm.toLowerCase())) {
@@ -222,6 +222,12 @@ function initMap (tunersOnline) {
             );
         },
     });
+
+    function resizeMap() {
+        map.updateSize();
+    }
+
+    window.addEventListener('resize', resizeMap);
 }
 
 function onTunerClick(event, markerIndex) {
@@ -274,6 +280,9 @@ function parseMarkdown() {
 
     var breakLineRegex = /\n/g;
     parsed = parsed.replace(breakLineRegex, '<br>');
+
+    var linkRegex = /\[([^\]]+)]\(([^)]+)\)/g;
+    parsed = parsed.replace(linkRegex, '<a href="$2">$1</a>');
 
     $("#current-tuner-desc").html(parsed);
 }

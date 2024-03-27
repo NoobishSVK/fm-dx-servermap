@@ -75,6 +75,7 @@ input[type="text"] {
     border: 0;
     font-family: inherit;
     padding: 10px;
+    position: relative;
 }
 
 input[type="text"]:focus {
