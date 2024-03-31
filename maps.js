@@ -182,6 +182,7 @@ function initMap (tunersOnline) {
             device: tuner.tuner,
             bwLimit: tuner.bwLimit,
             version: tuner.version,
+            status: tuner.status,
             style: {
                 fill: fillColor
             }
@@ -249,7 +250,7 @@ function onTunerClick(event, markerIndex) {
         $('#current-tuner-device').empty();
     }
 
-    currentMarker.bwLimit?.length > 1 ? $('#current-tuner-limits').html('<strong>Limit: </strong>' + currentMarker.bwLimit) : $('#current-tuner-limits').empty();
+    currentMarker.bwLimit?.length > 1 ? $('#current-tuner-limits').html('<strong>BW limit: </strong>' + currentMarker.bwLimit) : $('#current-tuner-limits').html('<strong>BW limit: </strong> None');
     currentMarker.version ? $('#current-tuner-version').text('Webserver version v' + currentMarker.version) : $('#current-tuner-version').empty();
     currentMarker.contact?.length > 0 ? $('#current-tuner-contact').text(currentMarker.contact) : $('#current-tuner-contact').text('No contact available.');
 
@@ -257,6 +258,7 @@ function onTunerClick(event, markerIndex) {
 
     $('.current-tuner-link').find('span').text(currentMarker.url);
     $('.current-tuner-link').attr('href', currentMarker.url);
+    $('.current-tuner-status').html('<div class="tuner-status-' + currentMarker.status + '"></div>')
 
     parseMarkdown();
 

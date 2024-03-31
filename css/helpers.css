@@ -9,3 +9,9 @@
 .text-red {
     color: #ff4747;
 }
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

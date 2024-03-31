@@ -20,8 +20,9 @@
 }
 
 .panel h3 {
-    font-size: 24px;
+    font-size: 28px;
     margin-bottom: 0;
+    font-weight: 300;
 }
 
 .panel p {
@@ -36,18 +37,27 @@
     font-size: 12px;
 }
 
-.panel table {
+.panel table.status-table {
     width: 80%;
     margin: auto;
 }
 
-.panel table th {
+.panel table.status-table th {
     width: 100px;
 }
 
-.panel table td {
+.panel table.status-table td {
     font-size: 28px;
     font-weight: 100;
+}
+
+.info-table {
+    width: 90%;
+    margin: auto;
+}
+
+.info-table td {
+    padding: 10px;
 }
 
 .panel .panel-sidebar {
@@ -61,6 +71,17 @@
     align-items: center;
     font-size: 36px;
     color: #aaa;
+}
+
+.panel-current-main {
+    height: calc(100% - 120px);
+    overflow-y: auto;
+}
+
+.panel-current-connect {
+    height: 120px;
+    background: #333;
+    flex-direction: column;
 }
 
 .panel .panel-sidebar:hover {

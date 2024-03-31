@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsvectormap/1.5.3/css/jsvectormap.min.css" type="text/css" media="screen"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" type="text/css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
-  <link rel="stylesheet" href="css/entry.css?ver=20240327" type="text/css">
+  <link rel="stylesheet" href="css/entry.css?ver=20240331" type="text/css">
   <style>
     body {
       margin: 0;
@@ -41,7 +41,7 @@
       </div>
       <div class="tuner-list"></div>
       <div class="online-status">
-        <table>
+        <table class="status-table">
           <thead>
             <th class="text-green">Available</th>
             <th class="text-red">Locked</th>
@@ -62,31 +62,40 @@
     </div>
 
     <div class="panel-content-current">
-      <div class="logo-container">
-        <img class="logo" src="openradio.png" alt="OpenRadio" height="50">
-      </div>
-      <div id="current-tuner-country" style="font-size: 38px;margin-top: 30px;"></div>
-      <h2 id="current-tuner-name"></h2>
-      <a href="#" target="_blank" class="current-tuner-link button">Connect</a>
-      <a href="#" target="_blank" class="text-small current-tuner-link link"><span></span></a>
-      
-      <h3>Description:</h3>
-      <p id="current-tuner-desc">adsf</p>
-      
-      <h3>Miscellaneous info:</h3>
-      <p id="current-tuner-device"></p>
-      <p id="current-tuner-limits"></p>
-      <p><strong>Audio quality:</strong> <span id="current-tuner-bitrate"></span>bps (<span id="current-tuner-channels"></span>)</p>
+      <div class="panel-current-main">
+        <div class="logo-container">
+          <img class="logo" src="openradio.png" alt="OpenRadio" height="50">
+        </div>
+        <h2 id="current-tuner-name" style="font-size: 34px; margin: 0 auto 20px auto;"></h2>
 
-      <h3>Owner contact:</h3>
-      <p id="current-tuner-contact">No contact available.</p>
-      <p class="text-small" style="margin: 20px auto;" id="current-tuner-version">Webserver version <span id="webserver-version">1.1.4</span></p>
+        <div class="current-tuner-basicinfo-container" style="display: flex;background-color: #393939;padding: 10px;">
+          <div id="current-tuner-country" class="flex-center" style="padding-right: 15px;font-size: 42px;"></div>
+          <div style="width: 100%;text-align: left;display: flex;flex-direction: column;justify-content: center;">
+            <p id="current-tuner-device"></p>
+            <p id="current-tuner-limits"></p>
+            <p><strong>Audio:</strong> <span id="current-tuner-bitrate"></span>bps (<span id="current-tuner-channels"></span>)</p>
+          </div>
+          <div class="tuner-status current-tuner-status flex-center" style="width: 64px; height: auto;"></div>
+        </div>
+        
+        <p class="text-small" style="margin: 5px;" id="current-tuner-version">Webserver version <span id="webserver-version">1.1.4</span></p>
+        <h3>Description:</h3>
+        <p id="current-tuner-desc"></p>
+  
+        <h3>Owner contact:</h3>
+        <p style="margin-bottom: 15px;" id="current-tuner-contact">No contact available.</p>
+      </div>
+
+      <div class="panel-current-connect flex-center">
+        <a href="#" target="_blank" class="current-tuner-link button">Connect</a>
+        <a href="#" target="_blank" class="text-small current-tuner-link link"><span></span></a>
+      </div>
     </div>
   </div>
   <div class="openradio-logo">
     <a id="open-all-tuners" class="button">Receivers</a>
   </div>
   
-  <script src="maps.js?ver=20240327"></script>
+  <script src="maps.js?ver=20240331"></script>
 </body>
 </html>
