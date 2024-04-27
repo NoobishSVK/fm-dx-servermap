@@ -47,7 +47,7 @@ function getTuners() {
             <div class="tuner-flag"><span class="fi fi-${tuner.country}"></span></div>
                 <div class="tuner-basic-info">
                     <h2>${tuner.name}</h2>
-                    <p>${tuner.url}</p>
+                    <p class="shorten">${tuner.url}</p>
                 </div>
                 <div class="tuner-status"><div class="tuner-status-${tuner.status}"></div></div>
             </div>`;
@@ -105,22 +105,31 @@ function getTuners() {
 }
 
 function filterTuners(searchTerm, type) {
+    let anyVisible = false;
     $('.tuner').each(function () {
         let searchData;
-        if(type && type == 'country') {
+        if (type && type == 'country') {
             let countryClass = $(this).find('.tuner-flag span').attr('class');
             searchData = countryClass.split('fi-')[1]; // Extract string after "fi-"
         } else {
             searchData = $(this).data('search');
         }
-        
+
         if (searchData.toLowerCase().includes(searchTerm.toLowerCase())) {
             $(this).show();
+            anyVisible = true;
         } else {
             $(this).hide();
         }
     });
+
+    if (!anyVisible) {
+        $('.no-content').show();
+    } else {
+        $('.no-content').hide();
+    }
 }
+
 
 function initMap (tunersOnline) {
     /**
@@ -250,7 +259,7 @@ function onTunerClick(event, markerIndex) {
         $('#current-tuner-device').empty();
     }
 
-    currentMarker.bwLimit?.length > 1 ? $('#current-tuner-limits').html('<strong>BW limit: </strong>' + currentMarker.bwLimit) : $('#current-tuner-limits').html('<strong>BW limit: </strong> None');
+    currentMarker.bwLimit?.length > 1 ? $('#current-tuner-limits').html('<strong>Tune limit: </strong>' + currentMarker.bwLimit) : $('#current-tuner-limits').html('<strong>BW limit: </strong> None');
     currentMarker.version ? $('#current-tuner-version').text('Webserver version v' + currentMarker.version) : $('#current-tuner-version').empty();
     currentMarker.contact?.length > 0 ? $('#current-tuner-contact').text(currentMarker.contact) : $('#current-tuner-contact').text('No contact available.');
 

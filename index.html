@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsvectormap/1.5.3/css/jsvectormap.min.css" type="text/css" media="screen"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" type="text/css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
-  <link rel="stylesheet" href="css/entry.css?ver=20240331" type="text/css">
+  <link rel="stylesheet" href="css/entry.css?ver=20240427" type="text/css">
   <style>
     body {
       margin: 0;
@@ -39,7 +39,9 @@
       <div class="search">
         <input type="text" id="tuner-search" placeholder="Search" style="justify-self: flex-end;">
       </div>
-      <div class="tuner-list"></div>
+      <div class="tuner-list">
+        <p class="no-content" style="display: none;text-align: center;padding: 15px;">No tuners have been found.</p>
+      </div>
       <div class="online-status">
         <table class="status-table">
           <thead>
@@ -96,6 +98,6 @@
     <a id="open-all-tuners" class="button">Receivers</a>
   </div>
   
-  <script src="maps.js?ver=20240331"></script>
+  <script src="maps.js?ver=20240427"></script>
 </body>
 </html>

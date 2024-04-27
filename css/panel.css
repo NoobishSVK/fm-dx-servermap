@@ -73,6 +73,14 @@
     color: #aaa;
 }
 
+.panel .shorten {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: auto;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
 .panel-current-main {
     height: calc(100% - 120px);
     overflow-y: auto;
@@ -111,8 +119,9 @@
 }
 
 .tuner-list {
+    height: 100%;
     text-align: left;
-    overflow-y:auto;
+    overflow-y: auto;
 }
 
 .tuner {
