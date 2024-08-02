@@ -1,0 +1,99 @@
+
+label {
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: block;
+    text-align: left;
+    color: var(--color-4);
+}
+
+.logo {
+    margin: 20px;
+}
+
+.openradio-logo {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+    bottom: 20px;
+    text-align: center;
+    z-index: 999;
+    display: flex;
+}
+
+.leaflet-grab {
+    cursor: -webkit-default;
+    cursor: -moz-default;
+    cursor: default;
+}
+
+.leaflet-tooltip {
+    background-color: #888;
+    border: 1px solid #222;
+    border-radius: 15px;
+    color: black;
+    font-weight: 600;
+    font-size: 16px;
+    font-family: 'Titillium Web', sans-serif;
+    padding: 10px 20px;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+    transition: 0.3s ease opacity;
+}
+
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+    border: none;
+}
+
+
+.checkbox input[type="checkbox"] {
+    padding: 0;
+    height: initial;
+    width: initial;
+    margin-bottom: 0;
+    display: none;
+    cursor: pointer;
+  }
+  
+  .checkbox label {
+    margin-top: 10px;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: left;
+    text-align: left;
+    user-select: none;
+  }
+  
+  .checkbox label:before {
+    content:'';
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: transparent;
+    border: 2px solid var(--color-4);
+    padding: 10px;
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+    cursor: pointer;
+    margin-right: 5px;
+  }
+  
+  .form-group input:checked + label:before {
+    background-color: var(--color-4);
+  }
+
+  .form-group input:checked + label:after {
+    content: '✓';
+    display: block;
+    position: absolute;
+    font-size: 18px;
+    top: -1px;
+    left: 5px;
+    width: 18px;
+    height: 18px;
+    color: var(--color-main);
+  }

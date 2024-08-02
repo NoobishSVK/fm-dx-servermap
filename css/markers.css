@@ -1,0 +1,26 @@
+.marker {
+    background-color: #aaa; /* Example background color */
+    border-radius: 50%; /* Circular marker */
+    width: 8px; /* Marker width */
+    height: 8px; /* Marker height */
+}
+
+.marker-status-0 {
+    background-color: #ffee00ea;
+    outline: 4px solid rgba(255, 238, 6, 0.4);
+}
+
+.marker-status-1 {
+    background-color: #2bec9bea;
+    outline: 4px solid rgb(103, 255, 149, 0.4);
+}
+
+.marker-status-2 {
+    background-color: #ff4747ea;
+    outline: 4px solid rgba(255, 60, 34, 0.4);
+}
+
+.marker-selected {
+    background-color: #eee; /* Highlight color */
+    outline: 4px solid rgba(220, 220, 220, 0.4);
+}
