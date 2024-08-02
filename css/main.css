@@ -1,32 +1,30 @@
+:root {
+    --color-main: rgb(32, 34, 40);
+    --color-main-bright: rgb(88, 219, 171);
+    --color-text: rgb(255, 255, 255);
+    
+    --color-1: color-mix(in srgb, var(--color-main) 95%, var(--color-main-bright)); /* 5% Brightness */
+    --color-2: color-mix(in srgb, var(--color-main) 75%, var(--color-main-bright)); /* 25% Brightness */
+    --color-3: color-mix(in srgb, var(--color-main) 50%, var(--color-main-bright)); /* 50% Brightness */
+    --color-4: color-mix(in srgb, var(--color-main) 20%, var(--color-main-bright)); /* 80% Brightness */
+    --color-5: color-mix(in srgb, var(--color-main) 5%, var(--color-main-bright)); /* 95% Brightness */
+
+    --color-1-transparent: color-mix(in srgb, var(--color-1), transparent 40%);
+    --color-2-transparent: color-mix(in srgb, var(--color-2), transparent 40%);
+    --color-3-transparent: color-mix(in srgb, var(--color-3), transparent 40%);
+    --color-4-transparent: color-mix(in srgb, var(--color-4), transparent 40%);
+    --color-5-transparent: color-mix(in srgb, var(--color-5), transparent 40%);
+    
+    --color-text-2: rgb(240,240,240);
+}
+
+
 * {
     box-sizing: border-box;
 }
 
 body {
     font-family: 'Titillium Web', sans-serif; 
-}
-
-.jvm-tooltip {
-    font-family: 'Titillium Web', sans-serif;
-    background: #aaa;
-    color: #111;
-    border-radius: 30px;
-    padding-left: 40px;
-    padding-right: 40px;
-}
-
-.jvm-zoomin, .jvm-zoomout {
-    display: flex;
-    height: 32px;
-    width: 32px;
-    justify-content: center;
-    align-items:center;
-    border: 1px solid #555;
-    background-color: #444;
-}
-
-.jvm-zoomout {
-    top: 40px !important;
 }
 
 a {
@@ -47,7 +45,7 @@ a:visited {
 }
 
 a.button {
-    width: 140px;
+    width: auto;
     border: 0;
     text-align: center;
     text-transform: uppercase;
@@ -59,7 +57,9 @@ a.button {
     display: block;
     text-decoration: none;
     margin: auto;
-    padding: 15px;
+    padding: 15px 20px;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 a.button:hover {
@@ -92,19 +92,12 @@ input[type="text"]:focus {
     transform: translate(-50%, 0);
     bottom: 20px;
     text-align: center;
+    z-index: 999;
+    display: flex;
 }
 
-.openradio-logo img {
-    opacity: 0.5;
-    width: 64px;
-    cursor: pointer;
-    transition: ease-in-out 0.35s opacity;
-}
-
-.openradio-logo img:hover {
-    opacity: 1;
-}
-
-.m-0 {
-    margin: 0;
+.leaflet-grab {
+    cursor: -webkit-default;
+    cursor: -moz-default;
+    cursor: default;
 }

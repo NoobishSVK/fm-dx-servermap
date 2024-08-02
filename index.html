@@ -5,33 +5,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsvectormap/1.5.3/js/jsvectormap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsvectormap/1.5.3/maps/world.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsvectormap/1.5.3/css/jsvectormap.min.css" type="text/css" media="screen"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" type="text/css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
-  <link rel="stylesheet" href="css/entry.css?ver=20240427" type="text/css">
+  <link rel="stylesheet" href="css/entry.css?ver=20240808" type="text/css">
   <style>
     body {
       margin: 0;
-      background-color: #333; /* Dark background color */
+      background-color: #222; /* Dark background color */
     }
     #map {
       width: 100vw;
       height: 100vh;
-      background-color: #333; /* Dark background color for the map */
+      background-color: #222; /* Dark background color for the map */
     }
   </style>
 </head>
 <body>
   <div id="map"></div>
+  <div id="loader" style="display: none;">Loading...</div>
   <div class="panel">
     <div class="panel-sidebar">
       <i class="fa-solid fa-chevron-right"></i>
     </div>
+
+    <div class="panel-content-settings" style="align-items: center;">
+      <h2 class="m-0" style="font-size: 36px;font-weight: 300;">Settings</h2>
+      <div class="form-group top-25">
+        <label for="themes"><i class="fa-solid fa-palette"></i> Default Theme:</label>
+        <div class="dropdown" id="theme-selector">
+            <input type="text" placeholder="None" readonly="" tabindex="0">
+            <ul class="options" tabindex="-1">
+              <li class="option" tabindex="0" data-value="none">None</li>
+                <li class="option" tabindex="0" data-value="theme1">Default</li>
+                <li class="option" tabindex="0" data-value="theme2">Cappuccino</li>
+                <li class="option" tabindex="0" data-value="theme3">Nature</li>
+                <li class="option" tabindex="0" data-value="theme4">Ocean</li>
+                <li class="option" tabindex="0" data-value="theme5">Terminal</li>
+                <li class="option" tabindex="0" data-value="theme6">Nightlife</li>
+                <li class="option" tabindex="0" data-value="theme7">Blurple</li>
+                <li class="option" tabindex="0" data-value="theme8">Construction</li>
+                <li class="option" tabindex="0" data-value="theme9">AMOLED</li>
+        </div>
+      </div>
+
+      <div class="form-group top-25">
+        <label for="signal"><i class="fa-solid fa-signal"></i> Signal units:</label>
+        <div class="dropdown" id="signal-selector">
+            <input type="text" placeholder="dBf" readonly="" tabindex="0">
+            <ul class="options" tabindex="-1">
+                <li class="option" tabindex="0" data-value="dbf">dBf</li>
+                <li class="option" tabindex="0" data-value="dbuv">dBuV</li>
+                <li class="option" tabindex="0" data-value="dbm">dBm</li>
+            </ul>
+        </div>
+      </div>
+
+      <div class="top-25">
+        <div class="form-group checkbox">
+          <input type="checkbox" tabindex="0" id="ps-underscores" aria-label="Add underscores to RDS PS">
+          <label for="ps-underscores">Add underscores to RDS PS</label>
+        </div>
+  
+        <div class="form-group checkbox">
+          <input type="checkbox" tabindex="0" id="no-plugins" aria-label="Disable plugins">
+          <label for="no-plugins">Disable Plugins</label>
+        </div>  
+  
+        <div class="form-group checkbox">
+          <input type="checkbox" tabindex="0" id="no-background" aria-label="Disable background">
+          <label for="no-background">Disable Background</label>
+        </div>  
+      </div>
+
+      <h3>Filters</h3>
+      <div class="top-25">
+        <div class="form-group checkbox">
+          <input type="checkbox" tabindex="0" id="hide-locked" aria-label="Hide locked servers">
+          <label for="hide-locked">Hide locked servers</label>
+        </div>
+  
+        <div class="form-group checkbox">
+          <input type="checkbox" tabindex="0" id="hide-unreachable" aria-label="Hide unreachable servers">
+          <label for="hide-unreachable">Hide unreachable servers</label>
+        </div>  
+      </div>
+
+    </div>
+
     <div class="panel-content-all">
-      <h2 class="m-0" style="font-size: 32px;font-weight: 200;">Receiver List</h2>
-      <p class="m-0" style="font-size: 12px;">by <a href="https://buymeacoffee.com/noobish" target="_blank" style="color: #eee">Noobish</a>, <a href="https://buymeacoffee.com/kkonradpl" target="_blank" style="color: #eee;">kkonradpl</a> & the OpenRadio community</p>
+      <h2 class="m-0" style="font-size: 36px;font-weight: 300;">Receivers</h2>
+      <p class="m-0" style="font-size: 12px;margin-top: -10px;">by <a href="https://fmdx.org" target="_blank" style="color: #eee">FMDX.org</a></p>
       <div class="logo-container">
         <img class="logo" src="openradio.png" alt="OpenRadio Logo" height="50">
       </div>
@@ -40,7 +105,7 @@
         <input type="text" id="tuner-search" placeholder="Search" style="justify-self: flex-end;">
       </div>
       <div class="tuner-list">
-        <p class="no-content" style="display: none;text-align: center;padding: 15px;">No tuners have been found.</p>
+        <p class="no-content" style="display: none;text-align: center;padding: 15px;">No receivers have been found.</p>
       </div>
       <div class="online-status">
         <table class="status-table">
@@ -96,8 +161,12 @@
   </div>
   <div class="openradio-logo">
     <a id="open-all-tuners" class="button">Receivers</a>
+    <a id="open-settings" class="button"><img src="img/settings.svg" style="width: 16px; color:black;" alt="Settings"></a>
   </div>
   
-  <script src="maps.js?ver=20240427"></script>
+  <script src="maps.js?ver=20240802"></script>
+  <script src="helpers.js?ver=20240802"></script>
+  <script src="dropdown.js?ver=20240802"></script>
+  <script src="settings.js?ver=20240802"></script>
 </body>
 </html>
