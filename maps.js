@@ -313,8 +313,6 @@ function initializeMap() {
             attributionControl: false
         });
 
-        console.log(map);
-
         var bounds = L.latLngBounds([
             [-90, -250], // South-West coordinates
             [90, 250]    // North-East coordinates
