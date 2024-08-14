@@ -7,17 +7,17 @@
 
 .marker-status-0 {
     background-color: #ffee00ea;
-    outline: 4px solid rgba(255, 238, 6, 0.4);
+    outline: 4px solid rgba(255, 245, 106, 0.4);
 }
 
 .marker-status-1 {
     background-color: #2bec9bea;
-    outline: 4px solid rgb(103, 255, 149, 0.4);
+    outline: 4px solid rgba(146, 255, 179, 0.4);
 }
 
 .marker-status-2 {
     background-color: #ff4747ea;
-    outline: 4px solid rgba(255, 60, 34, 0.4);
+    outline: 4px solid rgba(255, 138, 122, 0.4);
 }
 
 .marker-selected {
