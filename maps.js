@@ -4,8 +4,10 @@ let selectedMarker;
 let markersGroup; // Feature group to hold all markers
 let hideLocked = false;
 let hideUnreachable = false;
+const loader = $('#loader');
 
 $(document).ready(function () {
+
     // Initialize settings from local storage
     hideLocked = localStorage.getItem('hideLocked') === 'true';
     hideUnreachable = localStorage.getItem('hideUnreachable') === 'true';
@@ -16,18 +18,24 @@ $(document).ready(function () {
 
     // Register event listeners for checkboxes
     $('#hide-locked').on('change', function () {
+        showLoader();
         hideLocked = $(this).is(':checked');
         localStorage.setItem('hideLocked', hideLocked);
         filterMarkers();
+        //hideLoader();
     });
 
     $('#hide-unreachable').on('change', function () {
+        showLoader();
         hideUnreachable = $(this).is(':checked');
         localStorage.setItem('hideUnreachable', hideUnreachable);
         filterMarkers();
+        //hideLoader();
     });
 
+    showLoader();  // Show loader when fetching tuners
     getTuners();
+
     const panel = $('.panel');
     const tunerList = $('.panel-content-all');
     const currentTuner = $('.panel-content-current');
@@ -60,6 +68,14 @@ $(document).ready(function () {
     });
 });
 
+function showLoader() {
+    loader.show();
+}
+
+function hideLoader() {
+    loader.hide();
+}
+
 function openMenu() {
     $('.panel').addClass('open');
     $('.panel-content-current').removeClass('open');
@@ -85,8 +101,11 @@ function getTuners() {
 }
 
 function populateTunerList(tunersOnline) {
+    // Clear existing content
+    $('.tuner-list').empty();
+
     tunersOnline.forEach((tuner, index) => {
-        let tunerInfo = `<div class="tuner" data-index="${index}" data-search="${tuner.country} ${tuner.name} ${tuner.url} ${tuner.status} ${tuner.version} ${tuner.tuner}">
+        let tunerInfo = `<div class="tuner" tabindex="0" data-index="${index}" data-search="${tuner.country} ${tuner.name} ${tuner.url} ${tuner.status} ${tuner.version} ${tuner.tuner}">
             <div class="tuner-flag"><span class="fi fi-${tuner.country}"></span></div>
             <div class="tuner-basic-info">
                 <h2>${tuner.name}</h2>
@@ -102,17 +121,47 @@ function populateTunerList(tunersOnline) {
         onTunerClick(index);
     });
 
-    var countStatus0 = tunersOnline.filter(function (tuner) {
-        return tuner.status === 0;
-    }).length;
+    // Add keyboard navigation
+    let currentFocusIndex = -1;
 
-    var countStatus1 = tunersOnline.filter(function (tuner) {
-        return tuner.status === 1;
-    }).length;
+    function setFocus(index) {
+        $('.tuner').removeClass('focused');
+        if (index >= 0 && index < $('.tuner').length) {
+            $('.tuner').eq(index).addClass('focused').focus();
+            currentFocusIndex = index;
+        }
+    }
 
-    var countStatus2 = tunersOnline.filter(function (tuner) {
-        return tuner.status === 2;
-    }).length;
+    $(document).on('keydown', function (e) {
+        const tuners = $('.tuner');
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                setFocus((currentFocusIndex + 1) % tuners.length);
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                setFocus((currentFocusIndex - 1 + tuners.length) % tuners.length);
+                break;
+            case 'Enter':
+                if (currentFocusIndex >= 0 && currentFocusIndex < tuners.length) {
+                    const index = tuners.eq(currentFocusIndex).data('index');
+                    onTunerClick(index);
+                }
+                break;
+        }
+    });
+
+    // Ensure the focused class and styles
+    $('.tuner').on('focus', function() {
+        $(this).addClass('focused');
+    }).on('blur', function() {
+        $(this).removeClass('focused');
+    });
+
+    var countStatus0 = tunersOnline.filter(tuner => tuner.status === 0).length;
+    var countStatus1 = tunersOnline.filter(tuner => tuner.status === 1).length;
+    var countStatus2 = tunersOnline.filter(tuner => tuner.status === 2).length;
 
     $('#status0-count').text(countStatus0);
     $('#status1-count').text(countStatus1);
@@ -198,6 +247,8 @@ function style(feature) {
     };
 }
 
+let isMarkerHovered = false; // Flag to indicate if a marker is hovered
+
 // Function to highlight countries on hover and show tooltip with country name
 function highlightFeature(e) {
     const layer = e.target;
@@ -229,8 +280,10 @@ function highlightFeature(e) {
 // Function to reset the style of the countries and remove the tooltip
 function resetHighlight(e) {
     const layer = e.target;
-    geojsonLayer.resetStyle(layer);
-    layer.closeTooltip();
+    if (!isMarkerHovered) {
+        geojsonLayer.resetStyle(layer);
+        layer.closeTooltip();
+    }
 }
 
 // Function to handle country clicks
@@ -252,25 +305,23 @@ function initializeMap() {
     if (!map) {
         // Create the map with initial settings
         map = L.map('map', {
-            zoom: 1.5,
-            minZoom: 1.5,
+            center: L.latLng(20, 20),
+            zoom: 2,
+            minZoom: 1,
             maxZoom: 10,
-            center: [20, 0],
             zoomControl: true,
             attributionControl: false
         });
 
-        // Define the bounds for the map
+        console.log(map);
+
         var bounds = L.latLngBounds([
-            [85, -180], // South-West coordinates
-            [-85, 180]  // North-East coordinates
+            [-90, -250], // South-West coordinates
+            [90, 250]    // North-East coordinates
         ]);
 
-        // Restrict panning to the defined bounds
         map.setMaxBounds(bounds);
 
-        // Ensure the map is initially centered and zoomed properly
-        map.setView([50, 20], 1.5);
 
         // Optional: Prevent panning out of bounds after dragging
         map.on('moveend', function() {
@@ -289,14 +340,24 @@ function initializeMap() {
 }
 
 // Function to add markers and GeoJSON to the map
+// Declare geojsonLayer at a scope that is accessible throughout the function
+let geojsonLayer;
+
 function addMarkersAndGeoJson(tuners) {
-    fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    fetch('https://fmdx.org/data/countries_simplified.geojson')
+    //fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
         .then(response => response.json())
         .then(geojsonData => {
+
             // Add a "value" property to each GeoJSON feature for choropleth styling
             geojsonData.features.forEach(feature => {
                 feature.properties.value = 1;
             });
+
+            // Remove existing GeoJSON layer if it exists
+            if (geojsonLayer) {
+                map.removeLayer(geojsonLayer);
+            }
 
             // Add GeoJSON layer with style and event handlers
             geojsonLayer = L.geoJson(geojsonData, {
@@ -355,38 +416,88 @@ function addMarkersAndGeoJson(tuners) {
                             onTunerClick(index);
                         });
 
+                        marker.on('mouseover', function () {
+                            isMarkerHovered = true;
+                        });
+
+                        marker.on('mouseout', function () {
+                            isMarkerHovered = false;
+                        });
+
                         markersGroup.addLayer(marker);
                         markerPositions.push({ lat: latitude, lon: longitude });
                     }
                 }
             });
 
+            // Add markers to the map only if there are markers to show
             if (markersGroup.getLayers().length > 0) {
-                map.fitBounds(markersGroup.getBounds());
                 markersGroup.addTo(map);
             }
 
             filterMarkers(); // Apply initial filter
 
             $('.receivers-button').css('z-index', 1000);
+
+            // Call zoomToCountry here after GeoJSON is loaded
+            const urlParams = new URLSearchParams(window.location.search);
+            const countryParam = urlParams.get('country');
+            if (countryParam) {
+                zoomToCountry(countryParam.toUpperCase(), geojsonData);
+            } else {
+                // Only fitBounds to markers if no country is specified in the URL
+                if (markersGroup.getLayers().length > 0) {
+                    map.fitBounds(markersGroup.getBounds());
+                }
+            }
+
+            hideLoader();
         })
         .catch(error => console.error('Error fetching GeoJSON data:', error));
-
-    $(document).on('click', function (event) {
-        if (!$(event.target).closest('.marker').length && $(event.target).closest('.panel-sidebar').length || event.target == $('.panel-sidebar')) {
-            if (selectedMarker) {
-                selectedMarker.setIcon(L.divIcon({
-                    className: selectedMarker.options.icon.options.originalClass,
-                    iconSize: [12, 12],
-                    iconAnchor: [6, 6]
-                }));
-                selectedMarker = null;
-                $('.panel').removeClass('open');
-            }
-        }
-    });
 }
 
+
+function zoomToCountry(countryCode, geojsonData) {
+    let countryFound = false;
+
+    // Define specific bounding boxes for mainland regions
+    const mainlandBounds = {
+        "NL": [[50.5, 3.36], [53.6, 7.2]], // Mainland Netherlands
+        "FR": [[41.3, -5.14], [51.1, 9.66]] // Mainland France
+    };
+
+    // If the country is Netherlands or France, zoom to predefined mainland bounds
+    if (mainlandBounds[countryCode]) {
+        const bounds = mainlandBounds[countryCode];
+        console.log('Zooming to bounds:', bounds); // Debugging output
+        map.fitBounds(bounds);
+
+        // Filter tuners by the country code
+        filterTuners(countryCode.toLowerCase(), 'country');
+        $('#tuner-search').val('Country: ' + countryCode);
+
+        openMenu();  // Open the menu with tuners from that country
+
+        countryFound = true;
+    } else {
+        // Default behavior: zoom to the country's full bounding box
+        geojsonData.features.forEach(feature => {
+            if (feature.properties.ISO_A2 === countryCode) {
+                const bounds = L.geoJSON(feature).getBounds();
+                console.log('Zooming to bounds from GeoJSON:', bounds); // Debugging output
+                map.fitBounds(bounds);
+
+                // Filter tuners by the country code
+                filterTuners(countryCode.toLowerCase(), 'country');
+                $('#tuner-search').val('Country: ' + countryCode);
+
+                openMenu();  // Open the menu with tuners from that country
+
+                countryFound = true;
+            }
+        });
+    }
+}
 
 function filterMarkers() {
     markersGroup.eachLayer(function (marker) {
@@ -405,18 +516,4 @@ function filterMarkers() {
             map.removeLayer(marker);
         }
     });
-}
-
-// Utility functions to handle marker position adjustment
-function isTooClose(lat1, lon1, lat2, lon2, threshold = 0.001) {
-    const latDiff = Math.abs(lat1 - lat2);
-    const lonDiff = Math.abs(lon1 - lon2);
-    return latDiff < threshold && lonDiff < threshold;
-}
-
-function getRandomOffset() {
-    const maxOffset = 0.01; // Adjust the maximum offset as needed
-    const offsetLat = (Math.random() - 0.5) * maxOffset;
-    const offsetLon = (Math.random() - 0.5) * maxOffset;
-    return { offsetLat, offsetLon };
 }

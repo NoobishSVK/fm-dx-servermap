@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/leaflet.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/leaflet.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" type="text/css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
-  <link rel="stylesheet" href="css/entry.css?ver=20240808" type="text/css">
+  <link rel="stylesheet" href="css/entry.css?v=202408142138" type="text/css">
   <style>
     body {
       margin: 0;
@@ -24,7 +24,6 @@
 </head>
 <body>
   <div id="map"></div>
-  <div id="loader" style="display: none;">Loading...</div>
   <div class="panel">
     <div class="panel-sidebar">
       <i class="fa-solid fa-chevron-right"></i>
@@ -164,9 +163,14 @@
     <a id="open-settings" class="button"><img src="img/settings.svg" style="width: 16px; color:black;" alt="Settings"></a>
   </div>
   
-  <script src="maps.js?ver=20240802"></script>
-  <script src="helpers.js?ver=20240802"></script>
-  <script src="dropdown.js?ver=20240802"></script>
-  <script src="settings.js?ver=20240802"></script>
+  <div id="loader" style="display:none;">
+    <!-- Simple CSS spinner -->
+    <div class="spinner"></div>
+  </div>
+
+  <script src="maps.js?v=202408142138"></script>
+  <script src="helpers.js?v=202408142138"></script>
+  <script src="dropdown.js?v=202408142138"></script>
+  <script src="settings.js?v=202408142138"></script>
 </body>
 </html>

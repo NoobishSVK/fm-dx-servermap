@@ -140,6 +140,11 @@
     background-color: #555;
 }
 
+.tuner.focused {
+    border: 2px solid #007BFF; /* Highlight color for focused element */
+    background-color: #333; /* Background color for focused element */
+}
+
 .tuner h2, .tuner p {
     margin: 0;
 }
