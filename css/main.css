@@ -101,3 +101,7 @@ input[type="text"]:focus {
     cursor: -moz-default;
     cursor: default;
 }
+
+.leaflet-container .leaflet-interactive:focus {
+    outline: none;
+}
