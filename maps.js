@@ -18,19 +18,15 @@ $(document).ready(function () {
 
     // Register event listeners for checkboxes
     $('#hide-locked').on('change', function () {
-        showLoader();
         hideLocked = $(this).is(':checked');
         localStorage.setItem('hideLocked', hideLocked);
         filterMarkers();
-        //hideLoader();
     });
 
     $('#hide-unreachable').on('change', function () {
-        showLoader();
         hideUnreachable = $(this).is(':checked');
         localStorage.setItem('hideUnreachable', hideUnreachable);
         filterMarkers();
-        //hideLoader();
     });
 
     showLoader();  // Show loader when fetching tuners
@@ -66,6 +62,31 @@ $(document).ready(function () {
         const searchTerm = $(this).val();
         filterTuners(searchTerm, 'name');
     });
+
+    $(".leaflet-control a").each(function() {
+        $(this).attr("tabindex", "-1");
+    });
+    
+    $(document).keydown(function(event) {
+        if (event.key === 'Enter') {
+          const focusedButton = $(':focus');
+          
+          if (focusedButton.hasClass('button')) {
+            // Trigger click on the focused button
+            focusedButton.click();
+            
+            // Check if the button clicked is the #open-all-tuners button
+            if (focusedButton.is('#open-all-tuners')) {
+              // Delay focusing on the .tuner-list to allow it to appear
+              setTimeout(function() {
+                $('.tuner-list').focus();
+              }, 100); // 100 milliseconds delay (adjust as needed)
+            }
+          }
+        }
+      });
+      
+      
 });
 
 function showLoader() {
@@ -343,7 +364,6 @@ let geojsonLayer;
 
 function addMarkersAndGeoJson(tuners) {
     fetch('https://fmdx.org/data/countries_simplified.geojson')
-    //fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
         .then(response => response.json())
         .then(geojsonData => {
 
@@ -401,7 +421,8 @@ function addMarkersAndGeoJson(tuners) {
                                 iconSize: [12, 12],
                                 iconAnchor: [8, 8]
                             }),
-                            tunerStatus: tuner.status // Store the tuner status with the marker
+                            tunerStatus: tuner.status, // Store the tuner status with the marker
+                            keyboard: false // Disable keyboard interaction for this marker
                         });
 
                         // Bind a tooltip to display the marker name on hover
@@ -453,7 +474,6 @@ function addMarkersAndGeoJson(tuners) {
         })
         .catch(error => console.error('Error fetching GeoJSON data:', error));
 }
-
 
 function zoomToCountry(countryCode, geojsonData) {
     let countryFound = false;

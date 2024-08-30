@@ -10,6 +10,14 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" type="text/css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
   <link rel="stylesheet" href="css/entry.css?v=202408151059" type="text/css">
+
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+
+  <meta property="og:title" content="FM-DX Webserver List">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://i.imgur.com/QK7ZKte.png">
+  <meta property="og:description" content="An interactive map with all the available public FM-DX Webservers. This map is updated automatically. A free way to listen to hundreds of FM tuners worldwide.">
+  <meta name="twitter:card" content="summary_large_image">
   <style>
     body {
       margin: 0;
@@ -97,11 +105,11 @@
       <h2 class="m-0" style="font-size: 36px;font-weight: 300;">Receivers</h2>
       <p class="m-0" style="font-size: 12px;margin-top: -10px;">by <a href="https://fmdx.org" target="_blank" style="color: #eee">FMDX.org</a></p>
       <div class="logo-container">
-        <img class="logo" src="openradio.png" alt="OpenRadio Logo" height="50">
+        <img class="logo" src="img/openradio.png" alt="OpenRadio Logo" height="50">
       </div>
 
       <div class="search">
-        <input type="text" id="tuner-search" placeholder="Search" style="justify-self: flex-end;">
+        <input type="text" id="tuner-search" tabindex="0" placeholder="Search" style="justify-self: flex-end;">
       </div>
       <div class="tuner-list">
         <p class="no-content" style="display: none;text-align: center;padding: 15px;">No receivers have been found.</p>
@@ -130,7 +138,7 @@
     <div class="panel-content-current">
       <div class="panel-current-main">
         <div class="logo-container">
-          <img class="logo" src="openradio.png" alt="OpenRadio" height="50">
+          <img class="logo" src="img/openradio.png" alt="OpenRadio" height="50">
         </div>
         <h2 id="current-tuner-name" style="font-size: 34px; margin: 0 auto 20px auto;"></h2>
 
@@ -159,8 +167,8 @@
     </div>
   </div>
   <div class="openradio-logo">
-    <a id="open-all-tuners" class="button">Receivers</a>
-    <a id="open-settings" class="button"><img src="img/settings.svg" style="width: 16px; color:black;" alt="Settings"></a>
+    <a id="open-all-tuners" class="button" tabindex="0">Receivers</a>
+    <a id="open-settings" class="button" tabindex="0"><img src="img/settings.svg" style="width: 16px; color:black;" alt="Settings"></a>
   </div>
   
   <div id="loader" style="display:none;">
@@ -168,7 +176,7 @@
     <div class="spinner"></div>
   </div>
 
-  <script src="maps.js?v=202408142138"></script>
+  <script src="maps.js?v=202408301434"></script>
   <script src="helpers.js?v=202408142138"></script>
   <script src="dropdown.js?v=202408142138"></script>
   <script src="settings.js?v=202408142138"></script>
