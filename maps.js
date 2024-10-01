@@ -112,8 +112,8 @@ function openSettings() {
 }
 
 function getTuners() {
-    $.get("./api", function (data) {
-    //$.get("./data.json", function (data) { // DEBUGGING PURPOSES
+    //$.get("./api", function (data) {
+    $.get("./data.json", function (data) { // DEBUGGING PURPOSES
         tunersOnline = ('dataset' in data) ? data['dataset'] : [];
         initializeMap();
         addMarkersAndGeoJson(tunersOnline);
@@ -191,11 +191,13 @@ function populateTunerList(tunersOnline) {
 
 function onTunerClick(index) {
     const currentMarker = tunersOnline[index];
+    const isSupporter = ((currentMarker.url).includes('fmtuner.org') ? true : false);
 
     $('#current-tuner-country').html('<span class="fi fi-'+ currentMarker.country + '"></span>')
     $('#current-tuner-name').text(currentMarker.name);
     $('#current-tuner-desc').text(currentMarker.desc);
-    
+    $('#current-tuner-supporter').css('display', isSupporter ? 'initial' : 'none');
+
     currentMarker.audioChannels == 2 ? $('#current-tuner-channels').text('Stereo') : $('#current-tuner-channels').text('Mono');
 
     if(currentMarker.tuner) {
@@ -396,6 +398,7 @@ function addMarkersAndGeoJson(tuners) {
                 if (tuner.coords && tuner.coords.length === 2) {
                     var latitude = parseFloat(tuner.coords[0]);
                     var longitude = parseFloat(tuner.coords[1]);
+                    const isSupporter = ((tuner.url).includes('fmtuner.org') ? true : false);
                     if (!isNaN(latitude) && !isNaN(longitude)) {
                         let adjusted = false;
                         let attempts = 0;
@@ -426,7 +429,7 @@ function addMarkersAndGeoJson(tuners) {
                         });
 
                         // Bind a tooltip to display the marker name on hover
-                        marker.bindTooltip(tuner.name, {
+                        marker.bindTooltip(tuner.name + (isSupporter ? '<br><span style="display: block;font-size: 12px;font-weight: 300;text-align: center;margin: auto;">Supporter</span>' : ''), {
                             permanent: false,
                             direction: 'top'
                         });
