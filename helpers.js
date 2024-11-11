@@ -68,13 +68,13 @@ function filterTuners(searchTerm, type) {
             anyVisible = true;
 
             // Update status counts
-            if ($(this).find('.tuner-status-0').length > 0) {
+            if ($(this).hasClass('tuner-status-0')) {
                 statusCounts[0]++;
-            } else if ($(this).find('.tuner-status-1').length > 0) {
+            } else if ($(this).hasClass('tuner-status-1')) {
                 statusCounts[1]++;
-            } else if ($(this).find('.tuner-status-2').length > 0) {
+            } else if ($(this).hasClass('tuner-status-2')) {
                 statusCounts[2]++;
-            }
+            }            
         } else {
             $(this).hide();
         }
