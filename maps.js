@@ -126,13 +126,12 @@ function populateTunerList(tunersOnline) {
     $('.tuner-list').empty();
 
     tunersOnline.forEach((tuner, index) => {
-        let tunerInfo = `<div class="tuner" tabindex="0" data-index="${index}" data-search="${tuner.country} ${tuner.name} ${tuner.url} ${tuner.status} ${tuner.version} ${tuner.tuner}">
+        let tunerInfo = `<div class="tuner tuner-status-${tuner.status}" tabindex="0" data-index="${index}" data-search="${tuner.country} ${tuner.name} ${tuner.url} ${tuner.status} ${tuner.version} ${tuner.tuner}">
             <div class="tuner-flag"><span class="fi fi-${tuner.country}"></span></div>
             <div class="tuner-basic-info">
                 <h2>${tuner.name}</h2>
                 <p class="shorten">${tuner.url}</p>
             </div>
-            <div class="tuner-status"><div class="tuner-status-${tuner.status}"></div></div>
         </div>`;
         $('.tuner-list').append(tunerInfo);
     });
