@@ -326,15 +326,16 @@ function onCountryClick(e) {
 
 function initializeMap() {
     if (!map) {
-        // Create the map with initial settings
         map = L.map('map', {
-            center: L.latLng(20, 20),
-            zoom: 2,
+            center: L.latLng(20, 10),
+            zoom: 2.75,
             minZoom: 1,
             maxZoom: 10,
             zoomControl: true,
-            attributionControl: false
-        });
+            attributionControl: false,
+            zoomSnap: 0.1,
+            zoomDelta: 1 
+        });        
 
         var bounds = L.latLngBounds([
             [-90, -250], // South-West coordinates
