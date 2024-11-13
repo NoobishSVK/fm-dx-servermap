@@ -1,9 +1,13 @@
 let tunersOnline = [];
+let clustersByStatus = {};
 let map; // Global map variable
 let selectedMarker;
 let markersGroup; // Feature group to hold all markers
 let hideLocked = false;
 let hideUnreachable = false;
+let geojsonLayer;
+let allMarkers = []; 
+
 const loader = $('#loader');
 
 $(document).ready(function () {
@@ -299,7 +303,6 @@ function highlightFeature(e) {
     layer.bindTooltip(tooltip).openTooltip(e.latlng);
 }
 
-// Function to reset the style of the countries and remove the tooltip
 function resetHighlight(e) {
     const layer = e.target;
     if (!isMarkerHovered) {
@@ -308,7 +311,6 @@ function resetHighlight(e) {
     }
 }
 
-// Function to handle country clicks
 function onCountryClick(e) {
     const countryCode = e.target.feature.properties.ISO_A2; // Assuming ISO A2 code is used
     filterTuners(countryCode, 'country');
@@ -322,7 +324,6 @@ function onCountryClick(e) {
     }
 }
 
-// Function to initialize the map
 function initializeMap() {
     if (!map) {
         // Create the map with initial settings
@@ -359,26 +360,18 @@ function initializeMap() {
     }
 }
 
-// Function to add markers and GeoJSON to the map
-// Declare geojsonLayer at a scope that is accessible throughout the function
-let geojsonLayer;
-
 function addMarkersAndGeoJson(tuners) {
     fetch('https://fmdx.org/data/countries_simplified.geojson')
         .then(response => response.json())
         .then(geojsonData => {
-
-            // Add a "value" property to each GeoJSON feature for choropleth styling
             geojsonData.features.forEach(feature => {
                 feature.properties.value = 1;
             });
 
-            // Remove existing GeoJSON layer if it exists
             if (geojsonLayer) {
                 map.removeLayer(geojsonLayer);
             }
 
-            // Add GeoJSON layer with style and event handlers
             geojsonLayer = L.geoJson(geojsonData, {
                 style: style,
                 onEachFeature: function (feature, layer) {
@@ -390,21 +383,52 @@ function addMarkersAndGeoJson(tuners) {
                 }
             }).addTo(map);
 
-            markersGroup = L.featureGroup(); // Create a feature group to hold all markers
-            var markerPositions = []; // To store the positions of existing markers
+            const statusTypes = ["0", "1", "2"];
+            statusTypes.forEach(status => {
+                const clusterGroup = L.markerClusterGroup({
+                    maxClusterRadius: 8,
+                    iconCreateFunction: function(cluster) {
+                        return L.divIcon({
+                            html: `<div class="marker marker-status-${status} flex-center" style="font-family: 'Titillium Web'">${cluster.getChildCount()}</div>`,
+                            className: `marker marker-status-${status} flex-center`,
+                            iconSize: [24, 24]
+                        });
+                    }
+                });
 
+                clusterGroup.on('clustermouseover', function(event) {
+                    const cluster = event.layer;
+                    const childMarkers = cluster.getAllChildMarkers();
+                    const namesList = childMarkers
+                        .map(marker => marker.options.tuner && marker.options.tuner.name)
+                        .filter(name => name)
+                        .join("<br>");
+                    cluster.bindTooltip(namesList || "", {
+                        permanent: false,
+                        direction: "top",
+                    }).openTooltip();
+                });
+
+                clusterGroup.on('clustermouseout', function(event) {
+                    event.layer.closeTooltip();
+                });
+
+                clustersByStatus[status] = clusterGroup;
+            });
+
+            var markerPositions = [];
             tuners.forEach((tuner, index) => {
                 if (tuner.coords && tuner.coords.length === 2) {
                     var latitude = parseFloat(tuner.coords[0]);
                     var longitude = parseFloat(tuner.coords[1]);
                     const isSupporter = ((tuner.url).includes('fmtuner.org') ? true : false);
+
                     if (!isNaN(latitude) && !isNaN(longitude)) {
                         let adjusted = false;
                         let attempts = 0;
 
                         while (!adjusted && attempts < 10) {
                             let tooClose = markerPositions.some(pos => isTooClose(latitude, longitude, pos.lat, pos.lon));
-
                             if (tooClose) {
                                 const { offsetLat, offsetLon } = getRandomOffset();
                                 latitude += offsetLat;
@@ -415,19 +439,17 @@ function addMarkersAndGeoJson(tuners) {
                             }
                         }
 
-                        var originalClass = 'marker marker-status-' + tuner.status;
-
                         var marker = L.marker([latitude, longitude], {
                             icon: L.divIcon({
-                                className: originalClass,
+                                className: 'marker marker-status-' + tuner.status,
                                 iconSize: [12, 12],
                                 iconAnchor: [8, 8]
                             }),
-                            tunerStatus: tuner.status, // Store the tuner status with the marker
-                            keyboard: false // Disable keyboard interaction for this marker
+                            tunerStatus: tuner.status,
+                            tuner: tuner,
+                            keyboard: false
                         });
 
-                        // Bind a tooltip to display the marker name on hover
                         marker.bindTooltip(tuner.name + (isSupporter ? '<br><span style="display: block;font-size: 12px;font-weight: 300;text-align: center;margin: auto;">Supporter</span>' : ''), {
                             permanent: false,
                             direction: 'top'
@@ -445,82 +467,29 @@ function addMarkersAndGeoJson(tuners) {
                             isMarkerHovered = false;
                         });
 
-                        markersGroup.addLayer(marker);
+                        const statusClusterGroup = clustersByStatus[tuner.status] || clustersByStatus["unknown"];
+                        statusClusterGroup.addLayer(marker);
+                        allMarkers.push({ marker: marker, clusterGroup: statusClusterGroup });
                         markerPositions.push({ lat: latitude, lon: longitude });
                     }
                 }
             });
 
-            // Add markers to the map only if there are markers to show
-            if (markersGroup.getLayers().length > 0) {
-                markersGroup.addTo(map);
+            for (let status in clustersByStatus) {
+                map.addLayer(clustersByStatus[status]);
             }
 
-            filterMarkers(); // Apply initial filter
-
+            filterMarkers();
             $('.receivers-button').css('z-index', 1000);
-
-            // Call zoomToCountry here after GeoJSON is loaded
-            const urlParams = new URLSearchParams(window.location.search);
-            const countryParam = urlParams.get('country');
-            if (countryParam) {
-                zoomToCountry(countryParam.toUpperCase(), geojsonData);
-            } else {
-                // Only fitBounds to markers if no country is specified in the URL
-                if (markersGroup.getLayers().length > 0) {
-                    map.fitBounds(markersGroup.getBounds());
-                }
-            }
 
             hideLoader();
         })
         .catch(error => console.error('Error fetching GeoJSON data:', error));
 }
 
-function zoomToCountry(countryCode, geojsonData) {
-    let countryFound = false;
-
-    // Define specific bounding boxes for mainland regions
-    const mainlandBounds = {
-        "NL": [[50.5, 3.36], [53.6, 7.2]], // Mainland Netherlands
-        "FR": [[41.3, -5.14], [51.1, 9.66]] // Mainland France
-    };
-
-    // If the country is Netherlands or France, zoom to predefined mainland bounds
-    if (mainlandBounds[countryCode]) {
-        const bounds = mainlandBounds[countryCode];
-        console.log('Zooming to bounds:', bounds); // Debugging output
-        map.fitBounds(bounds);
-
-        // Filter tuners by the country code
-        filterTuners(countryCode.toLowerCase(), 'country');
-        $('#tuner-search').val('Country: ' + countryCode);
-
-        openMenu();  // Open the menu with tuners from that country
-
-        countryFound = true;
-    } else {
-        // Default behavior: zoom to the country's full bounding box
-        geojsonData.features.forEach(feature => {
-            if (feature.properties.ISO_A2 === countryCode) {
-                const bounds = L.geoJSON(feature).getBounds();
-                console.log('Zooming to bounds from GeoJSON:', bounds); // Debugging output
-                map.fitBounds(bounds);
-
-                // Filter tuners by the country code
-                filterTuners(countryCode.toLowerCase(), 'country');
-                $('#tuner-search').val('Country: ' + countryCode);
-
-                openMenu();  // Open the menu with tuners from that country
-
-                countryFound = true;
-            }
-        });
-    }
-}
-
 function filterMarkers() {
-    markersGroup.eachLayer(function (marker) {
+    allMarkers.forEach(entry => {
+        const { marker, clusterGroup } = entry;
         let shouldShow = true;
 
         if (hideLocked && marker.options.tunerStatus === 2) {
@@ -531,9 +500,56 @@ function filterMarkers() {
         }
 
         if (shouldShow) {
-            marker.addTo(map);
+            if (!clusterGroup.hasLayer(marker)) {
+                console.log('Adding marker:', marker.options.tuner.name);
+                clusterGroup.addLayer(marker);
+            }
         } else {
-            map.removeLayer(marker);
+            if (clusterGroup.hasLayer(marker)) {
+                console.log('Removing marker:', marker.options.tuner.name);
+                clusterGroup.removeLayer(marker);
+            }
         }
     });
+
+    Object.values(clustersByStatus).forEach(clusterGroup => {
+        if (clusterGroup.getLayers().length > 0) {
+            if (!map.hasLayer(clusterGroup)) {
+                map.addLayer(clusterGroup);
+            }
+        } else {
+            if (map.hasLayer(clusterGroup)) {
+                map.removeLayer(clusterGroup);
+            }
+        }
+    });
+}
+
+function zoomToCountry(countryCode, geojsonData) {
+    const mainlandBounds = {
+        "NL": [[50.5, 3.36], [53.6, 7.2]], // Mainland Netherlands
+        "FR": [[41.3, -5.14], [51.1, 9.66]] // Mainland France
+    };
+
+    if (mainlandBounds[countryCode]) {
+        const bounds = mainlandBounds[countryCode];
+        map.fitBounds(bounds);
+
+        filterTuners(countryCode.toLowerCase(), 'country');
+        $('#tuner-search').val('Country: ' + countryCode);
+
+        openMenu();
+    } else {
+        geojsonData.features.forEach(feature => {
+            if (feature.properties.ISO_A2 === countryCode) {
+                const bounds = L.geoJSON(feature).getBounds();
+                map.fitBounds(bounds);
+
+                filterTuners(countryCode.toLowerCase(), 'country');
+                $('#tuner-search').val('Country: ' + countryCode);
+
+                openMenu(); 
+            }
+        });
+    }
 }

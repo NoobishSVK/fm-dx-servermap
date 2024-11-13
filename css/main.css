@@ -47,19 +47,22 @@ a:visited {
 a.button {
     width: auto;
     border: 0;
-    text-align: center;
-    text-transform: uppercase;
     font-family: inherit;
     color: #222;
     background-color: #aaa;
     cursor: pointer;
     transition: 0.35s ease-in-out background-color;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 54px;
     text-decoration: none;
     margin: auto;
-    padding: 15px 20px;
+    text-transform: uppercase;
     margin-left: 5px;
     margin-right: 5px;
+    border-radius: 15px;
+    padding: 0 20px;
 }
 
 a.button:hover {
