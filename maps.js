@@ -360,8 +360,10 @@ function initializeMap() {
         });
     }
 }
-
 function addMarkersAndGeoJson(tuners) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const countryCode = urlParams.get('country');
+
     fetch('https://fmdx.org/data/countries_simplified.geojson')
         .then(response => response.json())
         .then(geojsonData => {
@@ -484,6 +486,10 @@ function addMarkersAndGeoJson(tuners) {
             $('.receivers-button').css('z-index', 1000);
 
             hideLoader();
+
+            if (countryCode) {
+                zoomToCountry(countryCode.toUpperCase(), geojsonData);
+            }
         })
         .catch(error => console.error('Error fetching GeoJSON data:', error));
 }
