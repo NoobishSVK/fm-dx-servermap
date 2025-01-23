@@ -196,10 +196,13 @@ function onTunerClick(index) {
     const currentMarker = tunersOnline[index];
     const isSupporter = ((currentMarker.url).includes('fmtuner.org') ? true : false);
 
-    $('#current-tuner-country').html('<span class="fi fi-'+ currentMarker.country + '"></span>')
+    $('.current-tuner-country').html('<span class="fi fi-'+ currentMarker.country + '"></span>')
     $('#current-tuner-name').text(currentMarker.name);
     $('#current-tuner-desc').text(currentMarker.desc);
     $('#current-tuner-supporter').css('display', isSupporter ? 'initial' : 'none');
+    $('#current-tuner-location').css('display', currentMarker.countryName !== null ? 'block' : 'none');
+    $('#current-tuner-city').text(currentMarker.city);
+    $('#current-tuner-country-name').text(currentMarker.countryName);
 
     currentMarker.audioChannels == 2 ? $('#current-tuner-channels').text('Stereo') : $('#current-tuner-channels').text('Mono');
 
@@ -213,10 +216,20 @@ function onTunerClick(index) {
         $('#current-tuner-device').empty();
     }
 
+    if(currentMarker.os.includes("Linux"))
+
     currentMarker.bwLimit?.length > 1 ? $('#current-tuner-limits').html('<strong>Tune limit: </strong>' + currentMarker.bwLimit) : $('#current-tuner-limits').html('<strong>Tune limit: </strong> None');
-    currentMarker.version ? $('#current-tuner-version').text('Webserver version v' + currentMarker.version) : null;
+    currentMarker.version ? $('#current-tuner-version').text('FM-DX Webserver v' + currentMarker.version) : null;
     currentMarker.contact?.length > 0 ? $('#current-tuner-contact').text(currentMarker.contact) : $('#current-tuner-contact').text('No contact available.');
-    currentMarker.os?.length > 0 ? $('#current-tuner-version').append('<br>(',currentMarker.os,')') : null;
+    if (currentMarker.os.includes("Linux") || currentMarker.os.includes("Windows")) {
+        const icon = currentMarker.os.includes("Linux") 
+            ? '<i class="fab fa-linux"></i> ' // Linux icon
+            : '<i class="fab fa-windows"></i> '; // Windows icon
+        
+        currentMarker.os?.length > 0 
+            ? $('#current-tuner-version').append('<br>[', icon, currentMarker.os, ']') 
+            : null;
+    }    
 
     $('#current-tuner-bitrate').text(currentMarker.audioQuality);
 

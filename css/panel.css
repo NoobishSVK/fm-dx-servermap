@@ -142,7 +142,7 @@
 }
 
 .tuner.focused {
-    border: 2px solid #007BFF; /* Highlight color for focused element */
+    box-shadow: inset 0px 0px 1px #666; /* Highlight color for focused element */
     background-color: #333; /* Background color for focused element */
 }
 
