@@ -204,11 +204,13 @@ function onTunerClick(index) {
     $('#current-tuner-city').text(currentMarker.city);
     let countryName = currentMarker.countryName;
 
-    if (countryName.startsWith("Russia")) {
-        countryName = "Russia";
-    } else if (countryName.startsWith("United Kingdom")) {
-        countryName = "United Kingdom";
-    }
+    if (countryName) {
+        if (countryName.startsWith("Russia")) {
+            countryName = "Russia";
+        } else if (countryName.startsWith("United Kingdom")) {
+            countryName = "United Kingdom";
+        }
+    
     $('#current-tuner-country-name').text(countryName);
     
 
