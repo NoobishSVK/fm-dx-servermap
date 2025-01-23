@@ -210,7 +210,7 @@ function onTunerClick(index) {
         } else if (countryName.startsWith("United Kingdom")) {
             countryName = "United Kingdom";
         }
-    
+    }
     $('#current-tuner-country-name').text(countryName);
     
 
