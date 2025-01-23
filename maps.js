@@ -202,7 +202,15 @@ function onTunerClick(index) {
     $('#current-tuner-supporter').css('display', isSupporter ? 'initial' : 'none');
     $('#current-tuner-location').css('display', currentMarker.countryName !== null ? 'block' : 'none');
     $('#current-tuner-city').text(currentMarker.city);
-    $('#current-tuner-country-name').text(currentMarker.countryName);
+    let countryName = currentMarker.countryName;
+
+    if (countryName.startsWith("Russia")) {
+        countryName = "Russia";
+    } else if (countryName.startsWith("United Kingdom")) {
+        countryName = "United Kingdom";
+    }
+    $('#current-tuner-country-name').text(countryName);
+    
 
     currentMarker.audioChannels == 2 ? $('#current-tuner-channels').text('Stereo') : $('#current-tuner-channels').text('Mono');
 
