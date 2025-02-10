@@ -121,15 +121,50 @@ function getTuners() {
         tunersOnline = ('dataset' in data) ? data['dataset'] : [];
         initializeMap();
         addMarkersAndGeoJson(tunersOnline);
-        populateTunerList(tunersOnline);
     });
 }
 
-function populateTunerList(tunersOnline) {
+function populateTunerList(tunersOnline, geojsonData) {
     // Clear existing content
     $('.tuner-list').empty();
 
     tunersOnline.forEach((tuner, index) => {
+        const countryBoundary = geojsonData.features.find(feature => {
+            return feature.properties?.ISO_A2?.toUpperCase() === tuner.country?.toUpperCase();
+        });
+
+        if (!countryBoundary) {
+            console.warn(`No country boundary found for ${tuner.country}`);
+            return; // Skip this tuner if no country boundary
+        }
+
+        const polygonCoords = countryBoundary.geometry.coordinates;
+        let isInside = false;
+
+        // Handle Polygon (single boundary) or MultiPolygon (multiple disjoint boundaries)
+        if (countryBoundary.geometry.type === "Polygon") {
+            if (polygonCoords[0].length >= 4) {
+                const polygon = turf.polygon(polygonCoords);
+                const point = turf.point([tuner.coords[1], tuner.coords[0]]);
+                isInside = turf.booleanPointInPolygon(point, polygon);
+            }
+        } else if (countryBoundary.geometry.type === "MultiPolygon") {
+            for (let i = 0; i < polygonCoords.length; i++) {
+                const polygon = turf.polygon(polygonCoords[i]);
+                const point = turf.point([tuner.coords[1], tuner.coords[0]]);
+                if (turf.booleanPointInPolygon(point, polygon)) {
+                    isInside = true;
+                    break;
+                }
+            }
+        }
+
+        if (!isInside) {
+            //console.warn(`Tuner ${tuner.name} is outside valid boundaries.`);
+            return;
+        }
+
+        // Add the tuner to the list if it passed the checks
         let tunerInfo = `<div class="tuner tuner-status-${tuner.status}" tabindex="0" data-index="${index}" data-search="${tuner.country} ${tuner.name} ${tuner.url} ${tuner.status} ${tuner.version} ${tuner.tuner}">
             <div class="tuner-flag"><span class="fi fi-${tuner.country}"></span></div>
             <div class="tuner-basic-info">
@@ -384,9 +419,6 @@ function initializeMap() {
     }
 }
 function addMarkersAndGeoJson(tuners) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const countryCode = urlParams.get('country');
-
     fetch('https://fmdx.org/data/countries_simplified.geojson')
         .then(response => response.json())
         .then(geojsonData => {
@@ -447,9 +479,56 @@ function addMarkersAndGeoJson(tuners) {
                 if (tuner.coords && tuner.coords.length === 2) {
                     var latitude = parseFloat(tuner.coords[0]);
                     var longitude = parseFloat(tuner.coords[1]);
-                    const isSupporter = ((tuner.url).includes('fmtuner.org') ? true : false);
+                    const isSupporter = tuner.url.includes('fmtuner.org');
 
                     if (!isNaN(latitude) && !isNaN(longitude)) {
+                        // Find the matching country boundary using the country code
+                        const countryBoundary = geojsonData.features.find(feature => {
+                            return feature.properties?.ISO_A2?.toUpperCase() === tuner.country?.toUpperCase();
+                        });
+
+                        if (!countryBoundary) {
+                            console.warn(`No country boundary found for ${tuner.country}`);
+                            return; // Skip this marker if no country boundary
+                        }
+
+                        const polygonCoords = countryBoundary.geometry.coordinates;
+
+                        // Check if the polygon coordinates are in a valid format
+                        if (!Array.isArray(polygonCoords) || polygonCoords.length === 0) {
+                            console.warn(`Invalid coordinates for ${tuner.country}:`, polygonCoords);
+                            return; // Skip this polygon if it has invalid coordinates
+                        }
+
+                        // Handle Polygon (single boundary) or MultiPolygon (multiple disjoint boundaries)
+                        let isInside = false;
+                        if (countryBoundary.geometry.type === "Polygon") {
+                            // Single polygon
+                            if (polygonCoords[0].length >= 4) {
+                                const polygon = turf.polygon(polygonCoords);
+                                const point = turf.point([longitude, latitude]);
+
+                                if (turf.booleanPointInPolygon(point, polygon)) {
+                                    isInside = true;
+                                }
+                            }
+                        } else if (countryBoundary.geometry.type === "MultiPolygon") {
+                            // Multiple polygons (MultiPolygon)
+                            for (let i = 0; i < polygonCoords.length; i++) {
+                                const polygon = turf.polygon(polygonCoords[i]);
+                                const point = turf.point([longitude, latitude]);
+
+                                if (turf.booleanPointInPolygon(point, polygon)) {
+                                    isInside = true;
+                                    break; 
+                                }
+                            }
+                        }
+
+                        if (!isInside) {
+                            return; // Skip this marker if it’s not inside any of the polygons
+                        }
+
                         let adjusted = false;
                         let attempts = 0;
 
@@ -506,13 +585,10 @@ function addMarkersAndGeoJson(tuners) {
             }
 
             filterMarkers();
+            populateTunerList(tunersOnline, geojsonData);
             $('.receivers-button').css('z-index', 1000);
 
             hideLoader();
-
-            if (countryCode) {
-                zoomToCountry(countryCode.toUpperCase(), geojsonData);
-            }
         })
         .catch(error => console.error('Error fetching GeoJSON data:', error));
 }
