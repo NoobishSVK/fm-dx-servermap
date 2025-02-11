@@ -525,6 +525,8 @@ function addMarkersAndGeoJson(tuners) {
                             }
                         }
 
+                        (tuner.country.includes("no") || tuner.country.includes("hr")) ? isInside = true : null;
+
                         if (!isInside) {
                             return; // Skip this marker if it’s not inside any of the polygons
                         }
