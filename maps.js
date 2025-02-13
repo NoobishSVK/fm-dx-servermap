@@ -159,6 +159,8 @@ function populateTunerList(tunersOnline, geojsonData) {
             }
         }
 
+        (tuner.country.includes("no") || tuner.country.includes("hr") || tuner.country.includes("pl")) ? isInside = true : null;
+
         if (!isInside) {
             //console.warn(`Tuner ${tuner.name} is outside valid boundaries.`);
             return;
@@ -419,6 +421,9 @@ function initializeMap() {
     }
 }
 function addMarkersAndGeoJson(tuners) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const countryCode = urlParams.get('country');
+
     fetch('https://fmdx.org/data/countries_simplified.geojson')
         .then(response => response.json())
         .then(geojsonData => {
@@ -525,7 +530,7 @@ function addMarkersAndGeoJson(tuners) {
                             }
                         }
 
-                        (tuner.country.includes("no") || tuner.country.includes("hr")) ? isInside = true : null;
+                        (tuner.country.includes("no") || tuner.country.includes("hr") || tuner.country.includes("pl")) ? isInside = true : null;
 
                         if (!isInside) {
                             return; // Skip this marker if it’s not inside any of the polygons
@@ -591,6 +596,10 @@ function addMarkersAndGeoJson(tuners) {
             $('.receivers-button').css('z-index', 1000);
 
             hideLoader();
+
+            if (countryCode) {
+                zoomToCountry(countryCode.toUpperCase(), geojsonData);
+            }
         })
         .catch(error => console.error('Error fetching GeoJSON data:', error));
 }
