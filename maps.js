@@ -159,7 +159,7 @@ function populateTunerList(tunersOnline, geojsonData) {
             }
         }
 
-        (tuner.country.includes("no") || tuner.country.includes("hr") || tuner.country.includes("pl")) ? isInside = true : null;
+        (tuner.country.includes("no") || tuner.country.includes("hr") || tuner.country.includes("pl") || tuner.country.includes("de")) ? isInside = true : null;
 
         if (!isInside) {
             //console.warn(`Tuner ${tuner.name} is outside valid boundaries.`);
