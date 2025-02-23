@@ -532,9 +532,9 @@ function addMarkersAndGeoJson(tuners) {
 
                         (tuner.country.includes("no") || tuner.country.includes("hr") || tuner.country.includes("pl") || tuner.country.includes("de")) ? isInside = true : null;
 
-                        if (!isInside) {
+                        /*if (!isInside) {
                             return; // Skip this marker if it’s not inside any of the polygons
-                        }
+                        }*/
 
                         let adjusted = false;
                         let attempts = 0;
