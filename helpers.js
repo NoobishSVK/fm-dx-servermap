@@ -87,7 +87,7 @@ function filterTuners(searchTerm, type) {
     }
 
     // Update the status counts in the table
-    $('#status0-count').text(statusCounts[0]);
-    $('#status1-count').text(statusCounts[1]);
-    $('#status2-count').text(statusCounts[2]);
+    $('.status0-count').text(statusCounts[0]);
+    $('.status1-count').text(statusCounts[1]);
+    $('.status2-count').text(statusCounts[2]);
 }

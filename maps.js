@@ -50,7 +50,7 @@ $(document).ready(function () {
         }
     });
 
-    $("#open-all-tuners").on("click", function () {
+    $(".open-tuners").on("click", function () {
         openMenu();
         $('#tuner-search').val('');
         filterTuners("");
@@ -79,8 +79,8 @@ $(document).ready(function () {
             // Trigger click on the focused button
             focusedButton.click();
             
-            // Check if the button clicked is the #open-all-tuners button
-            if (focusedButton.is('#open-all-tuners')) {
+            // Check if the button clicked is the .open-tuners button
+            if (focusedButton.is('.open-tuners')) {
               // Delay focusing on the .tuner-list to allow it to appear
               setTimeout(function() {
                 $('.tuner-list').focus();
@@ -139,7 +139,7 @@ function populateTunerList(tunersOnline, geojsonData) {
         }
 
         const polygonCoords = countryBoundary.geometry.coordinates;
-        let isInside = false;
+        /*let isInside = false;
 
         // Handle Polygon (single boundary) or MultiPolygon (multiple disjoint boundaries)
         if (countryBoundary.geometry.type === "Polygon") {
@@ -164,7 +164,7 @@ function populateTunerList(tunersOnline, geojsonData) {
         if (!isInside) {
             //console.warn(`Tuner ${tuner.name} is outside valid boundaries.`);
             return;
-        }
+        }*/
 
         // Add the tuner to the list if it passed the checks
         let tunerInfo = `<div class="tuner tuner-status-${tuner.status}" tabindex="0" data-index="${index}" data-search="${tuner.country} ${tuner.name} ${tuner.url} ${tuner.status} ${tuner.version} ${tuner.tuner}">
@@ -224,9 +224,9 @@ function populateTunerList(tunersOnline, geojsonData) {
     var countStatus1 = tunersOnline.filter(tuner => tuner.status === 1).length;
     var countStatus2 = tunersOnline.filter(tuner => tuner.status === 2).length;
 
-    $('#status0-count').text(countStatus0);
-    $('#status1-count').text(countStatus1);
-    $('#status2-count').text(countStatus2);
+    $('.status0-count-dash').text(countStatus0);
+    $('.status1-count-dash').text(countStatus1);
+    $('.status2-count-dash').text(countStatus2);
 }
 
 function onTunerClick(index) {
@@ -506,7 +506,7 @@ function addMarkersAndGeoJson(tuners) {
                         }
 
                         // Handle Polygon (single boundary) or MultiPolygon (multiple disjoint boundaries)
-                        let isInside = false;
+                        /*let isInside = false;
                         if (countryBoundary.geometry.type === "Polygon") {
                             // Single polygon
                             if (polygonCoords[0].length >= 4) {
@@ -530,7 +530,7 @@ function addMarkersAndGeoJson(tuners) {
                             }
                         }
 
-                        (tuner.country.includes("no") || tuner.country.includes("hr") || tuner.country.includes("pl") || tuner.country.includes("de")) ? isInside = true : null;
+                            (tuner.country.includes("no") || tuner.country.includes("hr") || tuner.country.includes("pl") || tuner.country.includes("de")) ? isInside = true : null;*/
 
                         /*if (!isInside) {
                             return; // Skip this marker if it’s not inside any of the polygons

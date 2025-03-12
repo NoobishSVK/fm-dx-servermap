@@ -27,3 +27,13 @@
 .top-25 {
     margin-top: 25px;
 }
+
+@media (max-width: 768px) {
+    .hide-phone {
+        display: none;
+    }
+    .center-phone {
+        margin: auto;
+    }
+  }
+  

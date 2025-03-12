@@ -8,7 +8,7 @@
     --color-3: color-mix(in srgb, var(--color-main) 50%, var(--color-main-bright)); /* 50% Brightness */
     --color-4: color-mix(in srgb, var(--color-main) 20%, var(--color-main-bright)); /* 80% Brightness */
     --color-5: color-mix(in srgb, var(--color-main) 5%, var(--color-main-bright)); /* 95% Brightness */
-
+    
     --color-1-transparent: color-mix(in srgb, var(--color-1), transparent 40%);
     --color-2-transparent: color-mix(in srgb, var(--color-2), transparent 40%);
     --color-3-transparent: color-mix(in srgb, var(--color-3), transparent 40%);
@@ -47,22 +47,15 @@ a:visited {
 a.button {
     width: auto;
     border: 0;
-    font-family: inherit;
     color: #222;
     background-color: #aaa;
     cursor: pointer;
-    transition: 0.35s ease-in-out background-color;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    transition: 0.35s ease background-color;
     height: 54px;
     text-decoration: none;
-    margin: auto;
     text-transform: uppercase;
-    margin-left: 5px;
-    margin-right: 5px;
     border-radius: 15px;
-    padding: 0 20px;
+    padding: 15px 30px;
 }
 
 a.button:hover {
@@ -97,6 +90,47 @@ input[type="text"]:focus {
     text-align: center;
     z-index: 999;
     display: flex;
+    align-items: center;
+    width: 95%;
+    max-width: 768px;
+    height: 64px;
+    background-color: #333c;
+    backdrop-filter: blur(5px);
+    border-radius: 15px;
+}
+
+.openradio-logo .status-info h2{
+    color: #aaa;
+    font-size: 22px;
+    font-weight: 300;
+}
+
+.openradio-logo .status-info p {
+    font-size: 12px;
+    font-weight: 300 !important;
+    min-width: 65px;
+}
+
+.btn-icon {
+    background-color: #222;
+    border: none;
+    border-radius: 15px;
+    height: 48px;
+    width: 48px;
+    font-size: 16px;
+    color: #999;
+    cursor: pointer;
+    transition: 0.35s ease background-color;
+    margin: 3px;
+}
+
+.btn-icon:hover {
+    background-color: #444;
+}
+
+.btn-icon.disabled {
+    cursor: not-allowed;
+    color: #666;
 }
 
 .leaflet-grab {
@@ -107,4 +141,14 @@ input[type="text"]:focus {
 
 .leaflet-container .leaflet-interactive:focus {
     outline: none;
+}
+
+h1 {
+    font-size: 26px;
+    font-weight: 300;
+    text-transform: initial;
+    user-select: none;
+    cursor: pointer;
+    color: #aaa;
+    margin-left: 15px;
 }

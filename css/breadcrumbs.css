@@ -12,16 +12,6 @@ label {
     margin: 20px;
 }
 
-.openradio-logo {
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, 0);
-    bottom: 20px;
-    text-align: center;
-    z-index: 999;
-    display: flex;
-}
-
 .leaflet-grab {
     cursor: -webkit-default;
     cursor: -moz-default;
