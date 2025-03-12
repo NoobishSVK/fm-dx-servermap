@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" type="text/css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
   
-  <link rel="stylesheet" href="css/entry.css?v=202411132352" type="text/css">
+  <link rel="stylesheet" href="css/entry.css?v=202503121636" type="text/css">
 
   <link rel="icon" type="image/png" href="img/favicon.png" />
 
@@ -36,6 +36,28 @@
   </style>
 </head>
 <body>
+  <div class="openradio-logo">
+    <h1 class="open-tuners hide-phone">FMDX.org • Webservers</h1>
+    <div style="margin: auto; height: 48px;margin-top: 6px;" class="hide-phone flex-center status-info">
+      <div style="margin: 0 5px;">
+        <h2 class="m-0 status1-count-dash">0</h2>
+        <p class="m-0 text-green">Available</p>
+      </div>
+      <div style="margin: 0 5px;">
+        <h2 class="m-0 status2-count-dash">0</h2>
+        <p class="m-0 text-red">Locked</p>
+      </div>
+      <div style="margin: 0 5px;">
+        <h2 class="m-0 status0-count-dash">0</h2>
+        <p class="m-0 text-yellow">Unreachable</p>
+      </div>
+    </div>
+    <div class="flex center-phone">
+      <button class="btn-icon open-tuners" tabindex="0" aria-role="button" earia-label="Receiver list"><i class="fa-solid fa-tower-cell fa-fw"></i></button>
+      <button class="btn-icon disabled" tabindex="0" aria-role="button" style="margin-right: 10px;" disabled><i class="fa-solid fa-cog fa-fw"></i></button>
+    </div>
+  </div>
+
   <div id="map"></div>
   <div id="loader" style="display:none;">
     <div class="spinner"></div>
@@ -183,27 +205,6 @@
         <a href="#" target="_blank" class="current-tuner-link button">Connect</a>
         <a href="#" target="_blank" class="text-small current-tuner-link link"><span></span></a>
       </div>
-    </div>
-  </div>
-  <div class="openradio-logo">
-    <h1 class="open-tuners hide-phone">FMDX.org • Webservers</h1>
-    <div style="margin: auto; height: 48px;margin-top: 6px;" class="hide-phone flex-center status-info">
-      <div style="margin: 0 5px;">
-        <h2 class="m-0 status1-count-dash">0</h2>
-        <p class="m-0 text-green">Available</p>
-      </div>
-      <div style="margin: 0 5px;">
-        <h2 class="m-0 status2-count-dash">0</h2>
-        <p class="m-0 text-red">Locked</p>
-      </div>
-      <div style="margin: 0 5px;">
-        <h2 class="m-0 status0-count-dash">0</h2>
-        <p class="m-0 text-yellow">Unreachable</p>
-      </div>
-    </div>
-    <div class="flex center-phone">
-      <button class="btn-icon open-tuners" tabindex="0" aria-label="Receiver list"><i class="fa-solid fa-tower-cell fa-fw"></i></button>
-      <button class="btn-icon disabled" tabindex="0" style="margin-right: 10px;"><i class="fa-solid fa-cog fa-fw"></i></button>
     </div>
   </div>
   
