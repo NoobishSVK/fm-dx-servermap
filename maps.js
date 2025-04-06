@@ -133,10 +133,10 @@ function populateTunerList(tunersOnline, geojsonData) {
             return feature.properties?.ISO_A2?.toUpperCase() === tuner.country?.toUpperCase();
         });
 
-        if (!countryBoundary) {
+        /*if (!countryBoundary) {
             console.warn(`No country boundary found for ${tuner.country}`);
             return; // Skip this tuner if no country boundary
-        }
+        }*/
 
         const polygonCoords = countryBoundary.geometry.coordinates;
         /*let isInside = false;
@@ -492,10 +492,10 @@ function addMarkersAndGeoJson(tuners) {
                             return feature.properties?.ISO_A2?.toUpperCase() === tuner.country?.toUpperCase();
                         });
 
-                        if (!countryBoundary) {
+                        /*if (!countryBoundary) {
                             console.warn(`No country boundary found for ${tuner.country}`);
                             return; // Skip this marker if no country boundary
-                        }
+                        }*/
 
                         const polygonCoords = countryBoundary.geometry.coordinates;
 
