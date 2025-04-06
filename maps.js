@@ -129,7 +129,7 @@ function populateTunerList(tunersOnline, geojsonData) {
     $('.tuner-list').empty();
 
     tunersOnline.forEach((tuner, index) => {
-        const countryBoundary = geojsonData.features.find(feature => {
+        /*const countryBoundary = geojsonData.features.find(feature => {
             return feature.properties?.ISO_A2?.toUpperCase() === tuner.country?.toUpperCase();
         });
 
@@ -138,7 +138,7 @@ function populateTunerList(tunersOnline, geojsonData) {
             return; // Skip this tuner if no country boundary
         }
 
-        const polygonCoords = countryBoundary.geometry.coordinates;
+        const polygonCoords = countryBoundary.geometry.coordinates;*/
         /*let isInside = false;
 
         // Handle Polygon (single boundary) or MultiPolygon (multiple disjoint boundaries)
@@ -488,7 +488,7 @@ function addMarkersAndGeoJson(tuners) {
 
                     if (!isNaN(latitude) && !isNaN(longitude)) {
                         // Find the matching country boundary using the country code
-                        const countryBoundary = geojsonData.features.find(feature => {
+                        /*const countryBoundary = geojsonData.features.find(feature => {
                             return feature.properties?.ISO_A2?.toUpperCase() === tuner.country?.toUpperCase();
                         });
 
@@ -503,7 +503,7 @@ function addMarkersAndGeoJson(tuners) {
                         if (!Array.isArray(polygonCoords) || polygonCoords.length === 0) {
                             console.warn(`Invalid coordinates for ${tuner.country}:`, polygonCoords);
                             return; // Skip this polygon if it has invalid coordinates
-                        }
+                        }*/
 
                         // Handle Polygon (single boundary) or MultiPolygon (multiple disjoint boundaries)
                         /*let isInside = false;
