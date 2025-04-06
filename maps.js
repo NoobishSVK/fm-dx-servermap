@@ -138,7 +138,7 @@ function populateTunerList(tunersOnline, geojsonData) {
             return; // Skip this tuner if no country boundary
         }*/
 
-        const polygonCoords = countryBoundary.geometry.coordinates;
+        //const polygonCoords = countryBoundary.geometry.coordinates;
         /*let isInside = false;
 
         // Handle Polygon (single boundary) or MultiPolygon (multiple disjoint boundaries)
@@ -497,7 +497,7 @@ function addMarkersAndGeoJson(tuners) {
                             return; // Skip this marker if no country boundary
                         }*/
 
-                        const polygonCoords = countryBoundary.geometry.coordinates;
+                        //const polygonCoords = countryBoundary.geometry.coordinates;
 
                         // Check if the polygon coordinates are in a valid format
                         if (!Array.isArray(polygonCoords) || polygonCoords.length === 0) {
