@@ -116,8 +116,8 @@ function openSettings() {
 }
 
 function getTuners() {
-    $.get("./api/", function (data) {
-    //$.get("./data.json", function (data) { // DEBUGGING PURPOSES
+    //$.get("./api/", function (data) {
+    $.get("./data.json", function (data) { // DEBUGGING PURPOSES
         tunersOnline = ('dataset' in data) ? data['dataset'] : [];
         initializeMap();
         addMarkersAndGeoJson(tunersOnline);
@@ -446,7 +446,7 @@ function addMarkersAndGeoJson(tuners) {
                 }
             }).addTo(map);
 
-            const statusTypes = ["0", "1", "2"];
+            const statusTypes = ["0", "1", "2", "unknown"];
             statusTypes.forEach(status => {
                 const clusterGroup = L.markerClusterGroup({
                     maxClusterRadius: 8,
