@@ -263,15 +263,21 @@ function onTunerClick(index) {
         $('#current-tuner-device').empty();
     }
 
-    if(currentMarker.os.includes("Linux"))
-
     currentMarker.bwLimit?.length > 1 ? $('#current-tuner-limits').html('<strong>Tune limit: </strong>' + currentMarker.bwLimit) : $('#current-tuner-limits').html('<strong>Tune limit: </strong> None');
     currentMarker.version ? $('#current-tuner-version').text('FM-DX Webserver v' + currentMarker.version) : null;
     currentMarker.contact?.length > 0 ? $('#current-tuner-contact').text(currentMarker.contact) : $('#current-tuner-contact').text('No contact available.');
-    if (currentMarker.os.includes("Linux") || currentMarker.os.includes("Windows")) {
-        const icon = currentMarker.os.includes("Linux") 
-            ? '<i class="fab fa-linux"></i> ' // Linux icon
-            : '<i class="fab fa-windows"></i> '; // Windows icon
+    if (currentMarker.os.includes("Linux") || currentMarker.os.includes("Windows") || currentMarker.os.includes("Darwin")) {
+        function getOsIcon(os) {
+            if (os.includes("Linux")) {
+                return '<i class="fab fa-linux"></i> ';
+            } else if (os.includes("Darwin")) {
+                return '<i class="fab fa-apple"></i> ';
+            } else {
+                return '<i class="fab fa-windows"></i> ';
+            }
+        }
+        
+        const icon = getOsIcon(currentMarker.os);
         
         currentMarker.os?.length > 0 
             ? $('#current-tuner-version').append('<br>[', icon, currentMarker.os, ']') 
