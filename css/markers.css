@@ -1,7 +1,6 @@
 .marker {
     background-color: #aaa; /* Example background color */
     border-radius: 50%; /* Circular marker */
-    transition: 0.3s ease background-color;
 }
 
 .marker::after {
@@ -13,11 +12,12 @@
     height: 32px; 
     background: transparent;
     pointer-events: auto;
+    transition: transform 0.2s ease;
+    transform: scale(1);
 }
 
 .marker-hover {
-    width: 32px;
-    height: 32px;
+    transform: scale(1.7); /* Grows from center */
 }
 
 .marker-status-0 {
@@ -36,8 +36,8 @@
 }
 
 .marker-selected {
-    background-color: #eee; /* Highlight color */
-    outline: 4px solid rgba(220, 220, 220, 0.4);
+    background-color: rgba(88, 224, 224, 0.95); /* Highlight color */
+    outline: 4px solid rgba(0, 255, 255, 0.4);
 }
 
 .leaflet-bar a {
