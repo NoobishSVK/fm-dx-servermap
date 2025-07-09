@@ -1,6 +1,7 @@
 .marker {
     background-color: #aaa; /* Example background color */
     border-radius: 50%; /* Circular marker */
+    transition: 0.3s ease background-color;
 }
 
 .marker::after {
@@ -12,6 +13,11 @@
     height: 32px; 
     background: transparent;
     pointer-events: auto;
+}
+
+.marker-hover {
+    width: 32px;
+    height: 32px;
 }
 
 .marker-status-0 {

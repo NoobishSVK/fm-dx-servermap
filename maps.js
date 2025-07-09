@@ -579,10 +579,14 @@ function addMarkersAndGeoJson(tuners) {
 
                         marker.on('mouseover', function () {
                             isMarkerHovered = true;
+                            const el = marker.getElement();
+                            if (el) el.classList.add('marker-hover');
                         });
 
                         marker.on('mouseout', function () {
                             isMarkerHovered = false;
+                            const el = marker.getElement();
+                            if (el) el.classList.remove('marker-hover');
                         });
 
                         const statusClusterGroup = clustersByStatus[tuner.status] || clustersByStatus["unknown"];
