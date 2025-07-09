@@ -12,12 +12,6 @@
     height: 32px; 
     background: transparent;
     pointer-events: auto;
-    transition: transform 0.2s ease;
-    transform: scale(1);
-}
-
-.marker-hover {
-    transform: scale(1.7); /* Grows from center */
 }
 
 .marker-status-0 {
@@ -36,8 +30,8 @@
 }
 
 .marker-selected {
-    background-color: rgba(88, 224, 224, 0.95); /* Highlight color */
-    outline: 4px solid rgba(0, 255, 255, 0.4);
+    background-color: #eee; /* Highlight color */
+    outline: 4px solid rgba(220, 220, 220, 0.4);
 }
 
 .leaflet-bar a {
