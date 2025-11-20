@@ -107,6 +107,18 @@ label {
     animation: spin 1s ease infinite;
 }
 
+.tuner-button {
+  border-radius: 10px;
+  padding: 0 5px;
+  cursor: pointer;
+  transition: 0.35s ease background-color;
+  user-select: none;
+}
+
+.tuner-button:hover {
+  background-color: #66666666;
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }

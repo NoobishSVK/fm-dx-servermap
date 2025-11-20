@@ -28,6 +28,11 @@
     margin-top: 25px;
 }
 
+.low-opacity {
+    opacity: 0.4;
+    transition: opacity 0.3s ease;
+  }
+
 @media (max-width: 768px) {
     .hide-phone {
         display: none;

@@ -13,23 +13,33 @@ const loader = $('#loader');
 $(document).ready(function () {
 
     // Initialize settings from local storage
+    hideAvailable = localStorage.getItem('hideAvailable') === 'true';
     hideLocked = localStorage.getItem('hideLocked') === 'true';
     hideUnreachable = localStorage.getItem('hideUnreachable') === 'true';
 
-    // Set the checkbox states based on the local storage
-    $('#hide-locked').prop('checked', hideLocked);
-    $('#hide-unreachable').prop('checked', hideUnreachable);
+    $('#hide-locked').toggleClass('low-opacity', hideLocked);
+    $('#hide-unreachable').toggleClass('low-opacity', hideUnreachable);
+    $('#hide-available').toggleClass('low-opacity', hideAvailable); 
 
     // Register event listeners for checkboxes
-    $('#hide-locked').on('change', function () {
-        hideLocked = $(this).is(':checked');
-        localStorage.setItem('hideLocked', hideLocked);
+    $('#hide-available').on('click', function () {
+        hideAvailable = !hideAvailable;
+        localStorage.setItem('hideAvailable', hideAvailable);
+        $(this).toggleClass('low-opacity', hideAvailable);
         filterMarkers();
     });
 
-    $('#hide-unreachable').on('change', function () {
-        hideUnreachable = $(this).is(':checked');
+    $('#hide-locked').on('click', function () {
+        hideLocked = !hideLocked;
+        localStorage.setItem('hideLocked', hideLocked);
+        $(this).toggleClass('low-opacity', hideLocked);
+        filterMarkers();
+    });
+
+    $('#hide-unreachable').on('click', function () {
+        hideUnreachable = !hideUnreachable;
         localStorage.setItem('hideUnreachable', hideUnreachable);
+        $(this).toggleClass('low-opacity', hideUnreachable);
         filterMarkers();
     });
 
@@ -42,6 +52,7 @@ $(document).ready(function () {
 
     $(".panel-sidebar").on("click", function () {
         if (currentTuner.hasClass('open')) {
+            filterTuners("");
             currentTuner.removeClass('open');
             tunerList.addClass('open');
         } else {
@@ -55,6 +66,37 @@ $(document).ready(function () {
         $('#tuner-search').val('');
         filterTuners("");
     });
+
+    $('.discover-tuners').on('click', function() {
+        const visibleMarkers = allMarkers
+            .filter(({ marker, clusterGroup }) => map.hasLayer(clusterGroup) && clusterGroup.hasLayer(marker))
+            .map(({ marker }) => marker);
+    
+        if (visibleMarkers.length === 0) {
+            alert('No visible markers to discover!');
+            return;
+        }
+    
+        const randomIndex = Math.floor(Math.random() * visibleMarkers.length);
+        const randomMarker = visibleMarkers[randomIndex];
+        const latLng = randomMarker.getLatLng();
+    
+        if (selectedMarker && selectedMarker !== randomMarker) {
+            selectedMarker.closeTooltip();
+
+        }
+    
+        selectedMarker = randomMarker;
+    
+        map.flyTo(latLng, 8, {
+            duration: 0.35
+        });
+    
+        map.once('moveend', function() {
+            randomMarker.fire('click');
+        });
+    });
+    
 
     $("#open-settings").on("click", function () {
         openSettings();
@@ -615,6 +657,9 @@ function filterMarkers() {
         const { marker, clusterGroup } = entry;
         let shouldShow = true;
 
+        if (hideAvailable && marker.options.tunerStatus === 1) {
+            shouldShow = false;
+        }
         if (hideLocked && marker.options.tunerStatus === 2) {
             shouldShow = false;
         }
