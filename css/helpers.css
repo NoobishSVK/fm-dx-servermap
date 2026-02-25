@@ -31,14 +31,20 @@
 .low-opacity {
     opacity: 0.4;
     transition: opacity 0.3s ease;
-  }
+}
 
 @media (max-width: 768px) {
     .hide-phone {
         display: none;
     }
+
     .center-phone {
         margin: auto;
     }
-  }
-  
+}
+
+@media (min-width: 769px) {
+    .hide-desktop {
+        display: none;
+    }
+}

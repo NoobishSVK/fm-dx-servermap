@@ -18,6 +18,10 @@
     --color-text-2: rgb(240,240,240);
 }
 
+::selection {
+    color: #aaa;
+    background-color: #333333aa;
+}
 
 * {
     box-sizing: border-box;

@@ -269,6 +269,7 @@ function populateTunerList(tunersOnline, geojsonData) {
     $('.status0-count-dash').text(countStatus0);
     $('.status1-count-dash').text(countStatus1);
     $('.status2-count-dash').text(countStatus2);
+    $('.status-total-count-dash').text(countStatus0 + countStatus1 + countStatus2);
 }
 
 function onTunerClick(index) {
@@ -300,6 +301,8 @@ function onTunerClick(index) {
             case 'tef': $('#current-tuner-device').html('<strong>Device: </strong> TEF668x'); break;
             case 'xdr': $('#current-tuner-device').html('<strong>Device: </strong> Sony XDR'); break;
             case 'sdr': $('#current-tuner-device').html('<strong>Device: </strong> SDR (RTL-SDR or AirSpy)'); break;
+            case 'si47xx': $('#current-tuner-device').html('<strong>Device: </strong> SkyWorks Si473x'); break;
+            default: $('#current-tuner-device').html('<strong>Device: </strong> TEF668x'); break;
         }
     } else {
         $('#current-tuner-device').empty();

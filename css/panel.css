@@ -84,13 +84,12 @@
 }
 
 .panel-current-main {
-    height: calc(100% - 120px);
+    height: calc(100% - 100px);
     overflow-y: auto;
 }
 
 .panel-current-connect {
-    height: 120px;
-    background: #333;
+    height: 100px;
     flex-direction: column;
 }
 
@@ -199,12 +198,14 @@
 }
 
 .current-tuner-link.link {
-    margin: 0 auto;
-    margin-bottom: 10px;
+    margin: 5px auto;
 }
 
 .current-tuner-link.button {
-    margin: 20px auto 3px auto;
+    margin: 0;
+    border-radius: 0;
+    width: 100%;
+    height: 70px;
 }
 
 @media (max-width: 768px) {
