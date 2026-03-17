@@ -205,7 +205,7 @@
   transition: 0.35s ease filter;
   display: block;
   margin: auto;
-  max-height: 125px;
+  max-height: 100px;
   object-fit: contain;
 }
 
