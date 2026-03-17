@@ -205,6 +205,8 @@
   transition: 0.35s ease filter;
   display: block;
   margin: auto;
+  max-height: 125px;
+  object-fit: contain;
 }
 
 #current-tuner-sponsor-image:hover {
