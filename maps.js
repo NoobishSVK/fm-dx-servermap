@@ -282,6 +282,11 @@ function onTunerClick(index) {
     $('#current-tuner-supporter').css('display', isSupporter ? 'initial' : 'none');
     $('#current-tuner-location').css('display', currentMarker.countryName !== null ? 'block' : 'none');
     $('#current-tuner-city').text(currentMarker.city);
+    $('#current-tuner-sponsor-url').css('display', currentMarker.sponsor_url.length > 0 ? 'block' : 'none');
+    $('#current-tuner-sponsor-url').attr('href', currentMarker.sponsor_url);
+    $('#current-tuner-sponsor-image').attr('src', currentMarker.sponsor_image);
+    $('#current-tuner-sponsor-image').attr('alt', currentMarker.sponsor_url);
+    $('#current-tuner-sponsor-image').attr('title', currentMarker.sponsor_url);
     let countryName = currentMarker.countryName;
 
     if (countryName) {

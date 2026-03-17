@@ -197,6 +197,20 @@
     font-weight: 300;
 }
 
+#current-tuner-sponsor-url {
+    display: none;
+}
+
+#current-tuner-sponsor-image {
+  transition: 0.35s ease filter;
+  display: block;
+  margin: auto;
+}
+
+#current-tuner-sponsor-image:hover {
+  filter:brightness(1.25);
+}
+
 .current-tuner-link.link {
     margin: 5px auto;
 }
