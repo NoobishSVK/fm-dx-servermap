@@ -6,7 +6,13 @@ let markersGroup; // Feature group to hold all markers
 let hideLocked = false;
 let hideUnreachable = false;
 let geojsonLayer;
+let geoJsonData;
 let allMarkers = []; 
+
+
+const countryNameToISO = {
+    "France": "FR"
+};
 
 const loader = $('#loader');
 
@@ -409,7 +415,7 @@ function highlightFeature(e) {
         className: 'country-tooltip',
         offset: L.point(0, 0)
     })
-    .setContent(layer.feature.properties.ADMIN);
+    .setContent(layer.feature.properties.name);
 
     // Update tooltip position on mousemove
     layer.on('mousemove', function(ev) {
@@ -428,7 +434,14 @@ function resetHighlight(e) {
 }
 
 function onCountryClick(e) {
-    const countryCode = e.target.feature.properties.ISO_A2; // Assuming ISO A2 code is used
+    const props = e.target.feature.properties;
+
+    let countryCode = props["ISO3166-1-Alpha-2"];
+
+    if (!countryCode || countryCode === -99) { // some countries dont have a code, so we gotta check the full names
+        countryCode = countryNameToISO[props.name] || 'unknown';
+    }
+
     filterTuners(countryCode, 'country');
     $('#tuner-search').val('Country: ' + countryCode);
     if (!$('.panel').hasClass('open')) {
@@ -480,9 +493,11 @@ function addMarkersAndGeoJson(tuners) {
     const urlParams = new URLSearchParams(window.location.search);
     const countryCode = urlParams.get('country');
 
-    fetch('https://fmdx.org/data/countries_simplified.geojson')
-        .then(response => response.json())
-        .then(geojsonData => {
+    fetch('countries.pbf')
+        .then(response => response.arrayBuffer())
+        .then(buf => {
+            geojsonData = geobuf.decode(new Pbf(buf));
+
             geojsonData.features.forEach(feature => {
                 feature.properties.value = 1;
             });
