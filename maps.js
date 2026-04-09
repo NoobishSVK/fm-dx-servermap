@@ -11,7 +11,8 @@ let allMarkers = [];
 
 
 const countryNameToISO = {
-    "France": "FR"
+    "France": "FR",
+    "Norway": "NR"
 };
 
 const loader = $('#loader');
