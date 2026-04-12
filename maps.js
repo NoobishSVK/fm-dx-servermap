@@ -351,7 +351,7 @@ function getColor() {
 function style(feature) {
     return {
         fillColor: getColor(feature.properties.value),
-        weight: 2.5,
+        weight: 3.5,
         opacity: 1,
         color: '#222',
         fillOpacity: 1
@@ -362,27 +362,38 @@ let isMarkerHovered = false; // Flag to indicate if a marker is hovered
 
 // Function to highlight countries on hover and show tooltip with country name
 function highlightFeature(e) {
-    highlightLayer.clearLayers();
-    highlightLayer.addData(e.target.feature);
+    const layer = e.target;
 
+    // Set the style for the hovered layer
+    layer.setStyle({
+        weight: 5,
+        dashArray: '',
+        fillOpacity: 0.7,
+    });
+
+    // Bind tooltip to layer with country name and update position on mousemove
     const tooltip = L.tooltip({
         permanent: false,
         direction: 'top',
         className: 'country-tooltip',
         offset: L.point(0, 0)
     })
-    .setContent(e.target.feature.properties.name);
+    .setContent(layer.feature.properties.name);
 
-        e.target.on('mousemove', function(ev) {
+    // Update tooltip position on mousemove
+    layer.on('mousemove', function(ev) {
         tooltip.setLatLng(ev.latlng);
     });
 
-    e.target.bindTooltip(tooltip).openTooltip(e.latlng);
+    layer.bindTooltip(tooltip).openTooltip(e.latlng);
 }
 
 function resetHighlight(e) {
-    highlightLayer.clearLayers();
-    e.target.closeTooltip();
+    const layer = e.target;
+    if (!isMarkerHovered) {
+        geojsonLayer.resetStyle(layer);
+        layer.closeTooltip();
+    }
 }
 
 function onCountryClick(e) {
@@ -459,29 +470,8 @@ function addMarkersAndGeoJson(tuners) {
                 map.removeLayer(geojsonLayer);
             }
 
-            const renderer = L.canvas({ padding: 1 });
-
             geojsonLayer = L.geoJson(geojsonData, {
-                renderer: renderer,
-                interactive: false,
                 style: style,
-            }).addTo(map);
-
-            highlightLayer = L.geoJSON(null, {
-                renderer: renderer,
-                interactive: false,
-                style: {
-                    weight: 0,
-                    color: '#111',
-                    fillOpacity: 0.2,
-                }
-            }).addTo(map);
-
-            const hoverLayer = L.geoJson(geojsonData, {
-                style: {
-                    fillOpacity: 0,
-                    opacity: 0
-                },
                 onEachFeature: function (feature, layer) {
                     layer.on({
                         mouseover: highlightFeature,
