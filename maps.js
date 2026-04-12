@@ -59,7 +59,6 @@ $(document).ready(function () {
 
     $(".panel-sidebar").on("click", function () {
         if (currentTuner.hasClass('open')) {
-            filterTuners("");
             currentTuner.removeClass('open');
             tunerList.addClass('open');
         } else {
@@ -165,8 +164,8 @@ function openSettings() {
 }
 
 function getTuners() {
-    $.get("./api/", function (data) {
-    //$.get("./data.json", function (data) { // DEBUGGING PURPOSES
+    //$.get("./api/", function (data) {
+    $.get("./data.json", function (data) { // DEBUGGING PURPOSES
         tunersOnline = ('dataset' in data) ? data['dataset'] : [];
         initializeMap();
         addMarkersAndGeoJson(tunersOnline);
@@ -178,43 +177,6 @@ function populateTunerList(tunersOnline, geojsonData) {
     $('.tuner-list').empty();
 
     tunersOnline.forEach((tuner, index) => {
-        /*const countryBoundary = geojsonData.features.find(feature => {
-            return feature.properties?.ISO_A2?.toUpperCase() === tuner.country?.toUpperCase();
-        });
-
-        if (!countryBoundary) {
-            console.warn(`No country boundary found for ${tuner.country}`);
-            return; // Skip this tuner if no country boundary
-        }
-
-        const polygonCoords = countryBoundary.geometry.coordinates;*/
-        /*let isInside = false;
-
-        // Handle Polygon (single boundary) or MultiPolygon (multiple disjoint boundaries)
-        if (countryBoundary.geometry.type === "Polygon") {
-            if (polygonCoords[0].length >= 4) {
-                const polygon = turf.polygon(polygonCoords);
-                const point = turf.point([tuner.coords[1], tuner.coords[0]]);
-                isInside = turf.booleanPointInPolygon(point, polygon);
-            }
-        } else if (countryBoundary.geometry.type === "MultiPolygon") {
-            for (let i = 0; i < polygonCoords.length; i++) {
-                const polygon = turf.polygon(polygonCoords[i]);
-                const point = turf.point([tuner.coords[1], tuner.coords[0]]);
-                if (turf.booleanPointInPolygon(point, polygon)) {
-                    isInside = true;
-                    break;
-                }
-            }
-        }
-
-        (tuner.country.includes("no") || tuner.country.includes("hr") || tuner.country.includes("pl") || tuner.country.includes("de")) ? isInside = true : null;
-
-        if (!isInside) {
-            //console.warn(`Tuner ${tuner.name} is outside valid boundaries.`);
-            return;
-        }*/
-
         // Add the tuner to the list if it passed the checks
         let tunerInfo = `<div class="tuner tuner-status-${tuner.status}" tabindex="0" data-index="${index}" data-search="${tuner.country} ${tuner.name} ${tuner.url} ${tuner.status} ${tuner.version} ${tuner.tuner}">
             <div class="tuner-flag"><span class="fi fi-${tuner.country}"></span></div>
@@ -509,7 +471,7 @@ function addMarkersAndGeoJson(tuners) {
                 renderer: renderer,
                 interactive: false,
                 style: {
-                    weight: 4,
+                    weight: 0,
                     color: '#111',
                     fillOpacity: 0.2,
                 }
