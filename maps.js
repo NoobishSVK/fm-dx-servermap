@@ -400,38 +400,27 @@ let isMarkerHovered = false; // Flag to indicate if a marker is hovered
 
 // Function to highlight countries on hover and show tooltip with country name
 function highlightFeature(e) {
-    const layer = e.target;
+    highlightLayer.clearLayers();
+    highlightLayer.addData(e.target.feature);
 
-    // Set the style for the hovered layer
-    layer.setStyle({
-        weight: 5,
-        dashArray: '',
-        fillOpacity: 0.7,
-    });
-
-    // Bind tooltip to layer with country name and update position on mousemove
     const tooltip = L.tooltip({
         permanent: false,
         direction: 'top',
         className: 'country-tooltip',
         offset: L.point(0, 0)
     })
-    .setContent(layer.feature.properties.name);
+    .setContent(e.target.feature.properties.name);
 
-    // Update tooltip position on mousemove
-    layer.on('mousemove', function(ev) {
+        e.target.on('mousemove', function(ev) {
         tooltip.setLatLng(ev.latlng);
     });
 
-    layer.bindTooltip(tooltip).openTooltip(e.latlng);
+    e.target.bindTooltip(tooltip).openTooltip(e.latlng);
 }
 
 function resetHighlight(e) {
-    const layer = e.target;
-    if (!isMarkerHovered) {
-        geojsonLayer.resetStyle(layer);
-        layer.closeTooltip();
-    }
+    highlightLayer.clearLayers();
+    e.target.closeTooltip();
 }
 
 function onCountryClick(e) {
@@ -464,7 +453,7 @@ function initializeMap() {
             zoomControl: true,
             attributionControl: false,
             zoomSnap: 0.1,
-            zoomDelta: 1 
+            zoomDelta: 1
         });        
 
         var bounds = L.latLngBounds([
@@ -490,6 +479,7 @@ function initializeMap() {
         });
     }
 }
+
 function addMarkersAndGeoJson(tuners) {
     const urlParams = new URLSearchParams(window.location.search);
     const countryCode = urlParams.get('country');
@@ -507,8 +497,29 @@ function addMarkersAndGeoJson(tuners) {
                 map.removeLayer(geojsonLayer);
             }
 
+            const renderer = L.canvas({ padding: 1 });
+
             geojsonLayer = L.geoJson(geojsonData, {
+                renderer: renderer,
+                interactive: false,
                 style: style,
+            }).addTo(map);
+
+            highlightLayer = L.geoJSON(null, {
+                renderer: renderer,
+                interactive: false,
+                style: {
+                    weight: 4,
+                    color: '#111',
+                    fillOpacity: 0.2,
+                }
+            }).addTo(map);
+
+            const hoverLayer = L.geoJson(geojsonData, {
+                style: {
+                    fillOpacity: 0,
+                    opacity: 0
+                },
                 onEachFeature: function (feature, layer) {
                     layer.on({
                         mouseover: highlightFeature,
@@ -559,54 +570,6 @@ function addMarkersAndGeoJson(tuners) {
                     const isSupporter = tuner.url.includes('fmtuner.org');
 
                     if (!isNaN(latitude) && !isNaN(longitude)) {
-                        // Find the matching country boundary using the country code
-                        /*const countryBoundary = geojsonData.features.find(feature => {
-                            return feature.properties?.ISO_A2?.toUpperCase() === tuner.country?.toUpperCase();
-                        });
-
-                        if (!countryBoundary) {
-                            console.warn(`No country boundary found for ${tuner.country}`);
-                            return; // Skip this marker if no country boundary
-                        }
-
-                        const polygonCoords = countryBoundary.geometry.coordinates;
-
-                        // Check if the polygon coordinates are in a valid format
-                        if (!Array.isArray(polygonCoords) || polygonCoords.length === 0) {
-                            console.warn(`Invalid coordinates for ${tuner.country}:`, polygonCoords);
-                            return; // Skip this polygon if it has invalid coordinates
-                        }*/
-
-                        // Handle Polygon (single boundary) or MultiPolygon (multiple disjoint boundaries)
-                        /*let isInside = false;
-                        if (countryBoundary.geometry.type === "Polygon") {
-                            // Single polygon
-                            if (polygonCoords[0].length >= 4) {
-                                const polygon = turf.polygon(polygonCoords);
-                                const point = turf.point([longitude, latitude]);
-
-                                if (turf.booleanPointInPolygon(point, polygon)) {
-                                    isInside = true;
-                                }
-                            }
-                        } else if (countryBoundary.geometry.type === "MultiPolygon") {
-                            // Multiple polygons (MultiPolygon)
-                            for (let i = 0; i < polygonCoords.length; i++) {
-                                const polygon = turf.polygon(polygonCoords[i]);
-                                const point = turf.point([longitude, latitude]);
-
-                                if (turf.booleanPointInPolygon(point, polygon)) {
-                                    isInside = true;
-                                    break; 
-                                }
-                            }
-                        }
-
-                            (tuner.country.includes("no") || tuner.country.includes("hr") || tuner.country.includes("pl") || tuner.country.includes("de")) ? isInside = true : null;*/
-
-                        /*if (!isInside) {
-                            return; // Skip this marker if it’s not inside any of the polygons
-                        }*/
 
                         let adjusted = false;
                         let attempts = 0;
@@ -639,17 +602,9 @@ function addMarkersAndGeoJson(tuners) {
                             direction: 'top'
                         });
 
-                        marker.on('click', function () {
-                            onTunerClick(index);
-                        });
-
-                        marker.on('mouseover', function () {
-                            isMarkerHovered = true;
-                        });
-
-                        marker.on('mouseout', function () {
-                            isMarkerHovered = false;
-                        });
+                        marker.on('click', function () {onTunerClick(index);});
+                        marker.on('mouseover', function () {isMarkerHovered = true;});
+                        marker.on('mouseout', function () {isMarkerHovered = false;});
 
                         const statusClusterGroup = clustersByStatus[tuner.status] || clustersByStatus["unknown"];
                         statusClusterGroup.addLayer(marker);
