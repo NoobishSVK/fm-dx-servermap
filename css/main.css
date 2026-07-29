@@ -100,7 +100,13 @@ input[type="text"]:focus {
     height: 64px;
     background-color: #333c;
     backdrop-filter: blur(5px);
-    border-radius: 15px;
+    border-radius: 10px;
+    transition: border-radius 0.2s ease;
+}
+
+.openradio-logo.open {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }
 
 .openradio-logo .status-info h2{
@@ -113,6 +119,26 @@ input[type="text"]:focus {
     font-size: 12px;
     font-weight: 300 !important;
     min-width: 65px;
+}
+
+.openradio-logo .details-tab {
+    width: 100%;
+    background-color: #333c;
+    color: #888;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    position: absolute;
+    bottom: 100%;
+    padding: 20px;
+    display: none;
+}
+
+#open-details i {
+    transition: transform 0.25s ease;
+}
+
+#open-details.open i {
+    transform: rotate(180deg);
 }
 
 .btn-icon {

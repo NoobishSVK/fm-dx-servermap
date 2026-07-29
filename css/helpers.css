@@ -10,6 +10,14 @@
     color: #ff4747;
 }
 
+.text-small {
+    font-size: 12px;
+}
+
+.text-left {
+    text-align: left;
+}
+
 .flex-center {
     display: flex;
     align-items: center;

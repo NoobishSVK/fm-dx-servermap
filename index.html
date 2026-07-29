@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" type="text/css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
   
-  <link rel="stylesheet" href="css/entry.css?v=202603171500" type="text/css">
+  <link rel="stylesheet" href="css/entry.css?v=202607292020" type="text/css">
 
   <link rel="icon" type="image/png" href="img/favicon.png" />
 
@@ -40,6 +40,11 @@
 </head>
 <body>
   <div class="openradio-logo">
+    <div class="details-tab text-small text-left">
+      The maps, border depictions, and server details shown on this page are provided solely for informational purposes and are not intended to express any political position.<br><br>
+      If you would like to request changes to country borders or other geographic data, please contact the original world GeoJSON creators on <a href="https://github.com/georgique/world-geojson" target="_blank">GitHub</a>.<br>
+      If you would like to filter the dataset yourself, use our <pre style="display: inline; background-color: #222; border-radius: 5px; padding: 4px;">/api</pre> data endpoint with fair caching policy.
+    </div>
     <h1 class="open-tuners">FMDX.org <span class="hide-phone">• Webservers</span></h1>
     <div style="margin: auto; height: 48px;margin-top: 6px;" class="flex-center status-info">
       <div style="margin: 0 5px;" class="tuner-button hide-phone" id="hide-available">
@@ -61,8 +66,8 @@
     </div>
     <div class="flex">
       <button class="btn-icon open-tuners" tabindex="0" aria-role="button" aria-label="Receiver list"><i class="fa-solid fa-tower-cell fa-fw"></i></button>
-      <button class="btn-icon discover-tuners" tabindex="0" aria-role="button" aria-label="Discover a new server!" style="margin-right: 10px;"><i class="fa-solid fa-shuffle fa-fw"></i></button>
-      <!--<button class="btn-icon disabled" tabindex="0" aria-role="button" aria-label="Settings (Coming soon)" style="margin-right: 10px;" disabled><i class="fa-solid fa-cog fa-fw"></i></button>-->
+      <button class="btn-icon discover-tuners" tabindex="0" aria-role="button" aria-label="Discover a new server!"><i class="fa-solid fa-shuffle fa-fw"></i></button>
+      <button class="btn-icon" id="open-details" style="background-color: transparent;" tabindex="0" aria-role="button" aria-label="More details" ><i class="fa-solid fa-chevron-up fa-fw"></i></button>
     </div>
   </div>
 
@@ -223,5 +228,6 @@
   <script src="helpers.js?v=202503121422"></script>
   <script src="dropdown.js?v=202508142138"></script>
   <script src="settings.js?v=202408142138"></script>
+  <script src="main.js?v=202607292020"></script>
 </body>
 </html>
