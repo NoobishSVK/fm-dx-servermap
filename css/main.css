@@ -29,6 +29,8 @@
 
 body {
     font-family: 'Titillium Web', sans-serif; 
+    scrollbar-color: #666 transparent;
+    scrollbar-width: thin;
 }
 
 a {
