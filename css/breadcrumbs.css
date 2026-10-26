@@ -39,55 +39,6 @@ label {
 }
 
 
-.checkbox input[type="checkbox"] {
-    padding: 0;
-    height: initial;
-    width: initial;
-    margin-bottom: 0;
-    display: none;
-    cursor: pointer;
-  }
-  
-  .checkbox label {
-    margin-top: 10px;
-    position: relative;
-    cursor: pointer;
-    display: flex;
-    align-items: left;
-    text-align: left;
-    user-select: none;
-  }
-  
-  .checkbox label:before {
-    content:'';
-    appearance: none;
-    -webkit-appearance: none;
-    background-color: transparent;
-    border: 2px solid var(--color-4);
-    padding: 10px;
-    display: inline-block;
-    position: relative;
-    vertical-align: middle;
-    cursor: pointer;
-    margin-right: 5px;
-  }
-  
-  .form-group input:checked + label:before {
-    background-color: var(--color-4);
-  }
-
-  .form-group input:checked + label:after {
-    content: '✓';
-    display: block;
-    position: absolute;
-    font-size: 18px;
-    top: -1px;
-    left: 5px;
-    width: 18px;
-    height: 18px;
-    color: var(--color-main);
-  }
-
   #loader {
     position: fixed;
     top: 50%;

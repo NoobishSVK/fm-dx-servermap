@@ -10,11 +10,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" type="text/css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" type="text/css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
   
-  <link rel="stylesheet" href="css/entry.css?v=202607292020" type="text/css">
+  <link rel="stylesheet" href="css/entry.css?v=202610262100" type="text/css">
 
   <link rel="icon" type="image/png" href="img/favicon.png" />
 
@@ -45,7 +44,7 @@
       If you would like to request changes to country borders or other geographic data, please contact the original world GeoJSON creators on <a href="https://github.com/georgique/world-geojson" target="_blank">GitHub</a>.<br>
       If you would like to filter the dataset yourself, use our <pre style="display: inline; background-color: #222; border-radius: 5px; padding: 4px;">/api</pre> data endpoint with fair caching policy.
     </div>
-    <h1 class="open-tuners">FMDX.org <span class="hide-phone">• Webservers</span></h1>
+    <h1 class="open-tuners flex-center"><img class="hide-desktop" src="img/fmdx.png" alt="FMDX.org" height="24"><span class="hide-phone">FMDX.org • Webservers</span></h1>
     <div style="margin: auto; height: 48px;margin-top: 6px;" class="flex-center status-info">
       <div style="margin: 0 5px;" class="tuner-button hide-phone" id="hide-available">
         <h2 class="m-0 status1-count-dash"><i class="fa-solid fa-circle-notch fa-spin"></i></h2>
@@ -80,73 +79,9 @@
       <i class="fa-solid fa-chevron-right"></i>
     </div>
 
-    <div class="panel-content-settings" style="align-items: center;">
-      <h2 class="m-0" style="font-size: 36px;font-weight: 300;">Settings</h2>
-      <div class="form-group top-25">
-        <label for="themes"><i class="fa-solid fa-palette"></i> Default Theme:</label>
-        <div class="dropdown" id="theme-selector">
-            <input type="text" placeholder="None" readonly="" tabindex="0">
-            <ul class="options" tabindex="-1">
-              <li class="option" tabindex="0" data-value="none">None</li>
-                <li class="option" tabindex="0" data-value="theme1">Default</li>
-                <li class="option" tabindex="0" data-value="theme2">Cappuccino</li>
-                <li class="option" tabindex="0" data-value="theme3">Nature</li>
-                <li class="option" tabindex="0" data-value="theme4">Ocean</li>
-                <li class="option" tabindex="0" data-value="theme5">Terminal</li>
-                <li class="option" tabindex="0" data-value="theme6">Nightlife</li>
-                <li class="option" tabindex="0" data-value="theme7">Blurple</li>
-                <li class="option" tabindex="0" data-value="theme8">Construction</li>
-                <li class="option" tabindex="0" data-value="theme9">AMOLED</li>
-        </div>
-      </div>
-
-      <div class="form-group top-25">
-        <label for="signal"><i class="fa-solid fa-signal"></i> Signal units:</label>
-        <div class="dropdown" id="signal-selector">
-            <input type="text" placeholder="dBf" readonly="" tabindex="0">
-            <ul class="options" tabindex="-1">
-                <li class="option" tabindex="0" data-value="dbf">dBf</li>
-                <li class="option" tabindex="0" data-value="dbuv">dBuV</li>
-                <li class="option" tabindex="0" data-value="dbm">dBm</li>
-            </ul>
-        </div>
-      </div>
-
-      <div class="top-25">
-        <div class="form-group checkbox">
-          <input type="checkbox" tabindex="0" id="ps-underscores" aria-label="Add underscores to RDS PS">
-          <label for="ps-underscores">Add underscores to RDS PS</label>
-        </div>
-  
-        <div class="form-group checkbox">
-          <input type="checkbox" tabindex="0" id="no-plugins" aria-label="Disable plugins">
-          <label for="no-plugins">Disable Plugins</label>
-        </div>  
-  
-        <div class="form-group checkbox">
-          <input type="checkbox" tabindex="0" id="no-background" aria-label="Disable background">
-          <label for="no-background">Disable Background</label>
-        </div>  
-      </div>
-
-      <h3>Filters</h3>
-      <div class="top-25">
-        <!--<div class="form-group checkbox">
-          <input type="checkbox" tabindex="0" id="hide-locked" aria-label="Hide locked servers">
-          <label for="hide-locked">Hide locked servers</label>
-        </div>
-  
-        <div class="form-group checkbox">
-          <input type="checkbox" tabindex="0" id="hide-unreachable" aria-label="Hide unreachable servers">
-          <label for="hide-unreachable">Hide unreachable servers</label>
-        </div> --> 
-      </div>
-
-    </div>
-
     <div class="panel-content-all">
       <div class="logo-container">
-        <img class="logo" src="img/openradio.png" alt="OpenRadio Logo" height="50">
+        <img class="logo" src="img/fmdx.png" alt="OpenRadio Logo" height="50">
       </div>
 
       <div class="search">
@@ -156,78 +91,81 @@
         <p class="no-content" style="display: none;text-align: center;padding: 15px;">No receivers have been found.</p>
       </div>
       <div class="online-status">
-        <table class="status-table">
-          <thead>
-            <th class="text-green">Available</th>
-            <th class="text-red">Locked</th>
-            <th class="text-yellow">Unreachable</th>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="status1-count">0</td>
-              <td class="status2-count">0</td>
-              <td class="status0-count">0</td>
-            </tr>
-          </tbody>
-        </table>
-        <p style="margin-bottom: 10px;">
-          [<a class="text-bright-underline text-green" href="https://github.com/noobishsvk/fm-dx-webserver/" target="_blank">Set up your own Webserver!</a>]
-        </p>
+        <div class="status-info flex-center">
+          <div><h2 class="status1-count">0</h2><p class="text-green">Available</p></div>
+          <div><h2 class="status2-count">0</h2><p class="text-red">Locked</p></div>
+          <div><h2 class="status0-count">0</h2><p class="text-yellow">Unreachable</p></div>
+        </div>
+        <a class="text-bright-underline text-green text-small" href="https://github.com/noobishsvk/fm-dx-webserver/" target="_blank">Set up your own Webserver!</a>
       </div>
     </div>
 
     <div class="panel-content-current">
       <div class="panel-current-main">
-        <div class="logo-container">
-          <img class="logo" src="img/openradio.png" alt="OpenRadio" height="50">
-        </div>
-        <h2 id="current-tuner-name" style="font-size: 28px; margin: 0 auto;margin-bottom: 10px;"></h2>
-
-        <p class="text-small" style="margin: 5px;" id="current-tuner-version">FM-DX Webserver <span id="webserver-version"></span></p>
-        <div class="current-tuner-basicinfo-container" style="display: flex;background-color: #393939;padding: 10px;">
-          <div class="current-tuner-country flex-center" style="padding-right: 15px;font-size: 42px;"></div>
-          <div style="width: 100%;text-align: left;display: flex;flex-direction: column;justify-content: center;">
-            <p id="current-tuner-device"></p>
-            <p id="current-tuner-limits"></p>
-            <p><strong>Audio:</strong> <span id="current-tuner-bitrate"></span>bps (<span id="current-tuner-channels"></span>)</p>
+        <div class="current-tuner-header">
+          <div class="current-tuner-header-flag"></div>
+          <div class="logo-container">
+            <img class="logo" src="img/fmdx.png" alt="OpenRadio" height="50">
           </div>
-          <div class="tuner-status current-tuner-status flex-center" style="width: 64px; height: auto;"></div>
+          <h2 id="current-tuner-name"></h2>
+
+          <p class="text-small" id="current-tuner-version">FM-DX Webserver <span id="webserver-version"></span></p>
+
+          <p id="current-tuner-location" class="text-small">
+            <i class="fa-regular fa-compass"></i>
+            <span style="opacity: 0.8">hosted near </span>
+            <strong><span id="current-tuner-city"></span></strong>,
+            <span id="current-tuner-country-name"></span>
+          </p>
         </div>
 
-        <p id="current-tuner-location" style="margin: 5px auto;font-size: 14px;">
-          <i class="fa-regular fa-compass"></i>
-           <span style="opacity: 0.8">hosted near </span>
-          <strong><span id="current-tuner-city"></span></strong>,
-            <span id="current-tuner-country-name"></span>
-          <span class="current-tuner-country" style="margin-left: 2px;"></span>
-        </p>
+        <a id="current-tuner-sponsor-url" href="#" target="_blank" style="margin-bottom: 20px;"><img id="current-tuner-sponsor-image" src="#" width="70%"></a>
 
-        <span id="current-tuner-supporter">
-          <h2 style="margin: 0;margin-top: 16px;">⭐</h2>
-          <p style="margin: 0;">This server is hosted by a <strong>supporter of FMDX.org</strong>.</p>
-        </span>
+        <div class="panel-card current-tuner-basicinfo-container">
+          <h3>Basic info</h3>
+          <div class="info-row">
+            <span class="flex-center" style="gap: 10px;"><i class="fa-solid fa-microchip fa-fw"></i> Device</span>
+            <p id="current-tuner-device"></p>
+          </div>
+          <div class="info-row">
+            <span class="flex-center" style="gap: 10px;"><i class="fa-solid fa-arrows-left-right fa-fw"></i> Tune limit</span>
+            <p id="current-tuner-limits"></p>
+          </div>
+          <div class="info-row">
+            <span class="flex-center" style="gap: 10px;"><i class="fa-solid fa-volume-high fa-fw"></i> Audio</span>
+            <p><span id="current-tuner-bitrate"></span>bps · <span id="current-tuner-channels"></span></p>
+          </div>
+        </div>
 
-        <a id="current-tuner-sponsor-url" style="padding-top: 25px" href="#" target="_blank"><img id="current-tuner-sponsor-image" src="#" width="70%"></a>
+        <div id="current-tuner-supporter" class="panel-card">
+          <i class="fa-solid fa-star"></i>
+          <p>This server is hosted by a <strong>supporter of FMDX.org</strong>.</p>
+        </div>
 
-        <h3>Description:</h3>
-        <p id="current-tuner-desc"></p>
-  
-        <h3>Owner contact:</h3>
-        <p style="margin-bottom: 15px;" id="current-tuner-contact">No contact available.</p>
+        <div class="panel-card">
+          <h3>Description</h3>
+          <p id="current-tuner-desc"></p>
+        </div>
+
+        <div class="panel-card">
+          <h3>Owner contact</h3>
+          <p id="current-tuner-contact">No contact available.</p>
+        </div>
       </div>
 
-      <div class="panel-current-connect flex-center">
-        <a href="#" target="_blank" class="text-small current-tuner-link link"><span></span></a>
+      <div class="panel-current-connect">
+        <div class="current-tuner-connect-info">
+          <span class="current-tuner-status-text"></span>
+          <a href="#" target="_blank" class="text-small current-tuner-link link shorten"><span></span></a>
+        </div>
         <a href="#" target="_blank" class="current-tuner-link button flex-center">Connect</a>
       </div>
     </div>
   </div>
   
 
-  <script src="maps.js?v=202604121900"></script>
-  <script src="helpers.js?v=202503121422"></script>
-  <script src="dropdown.js?v=202508142138"></script>
-  <script src="settings.js?v=202408142138"></script>
-  <script src="main.js?v=202607292020"></script>
+  <script src="maps.js?v=202610262100"></script>
+  <script src="helpers.js?v=202610262100"></script>
+  <script src="main.js?v=202610262100"></script>
 </body>
 </html>

@@ -15,7 +15,7 @@ function parseMarkdown() {
     var breakLineRegex = /\n/g;
     parsed = parsed.replace(breakLineRegex, '<br>');
 
-    var linkRegex = /\[([^\]]+)]\(([^)]+)\)/g;
+    var linkRegex = /\[([^\]]+)]\((https?:\/\/[^)\s]+)\)/g; // http(s) only, blocks javascript: links
     parsed = parsed.replace(linkRegex, '<a href="$2">$1</a>');
 
     $("#current-tuner-desc").html(parsed);
@@ -41,8 +41,8 @@ function isTooClose(lat1, lon1, lat2, lon2, threshold = 0.025) {
 
 // Function to generate random offsets
 function getRandomOffset(maxOffset = 0.025) {
-    const offsetLat = (Math.random() - 0.025) * 2 * maxOffset;
-    const offsetLon = (Math.random() - 0.025) * 2 * maxOffset;
+    const offsetLat = (Math.random() - 0.5) * 2 * maxOffset;
+    const offsetLon = (Math.random() - 0.5) * 2 * maxOffset;
     return { offsetLat, offsetLon };
 }
 
@@ -57,7 +57,7 @@ function filterTuners(searchTerm, type) {
     $('.tuner').each(function () {
         let searchData;
         if (type && type == 'country') {
-            let countryClass = $(this).find('.tuner-flag span').attr('class');
+            let countryClass = $(this).find('.tuner-bg-flag').attr('class');
             searchData = countryClass.split('fi-')[1]; // Extract string after "fi-"
         } else {
             searchData = $(this).data('search');

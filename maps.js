@@ -2,12 +2,11 @@ let tunersOnline = [];
 let clustersByStatus = {};
 let map; // Global map variable
 let selectedMarker;
-let markersGroup; // Feature group to hold all markers
+let hideAvailable = false;
 let hideLocked = false;
 let hideUnreachable = false;
 let geojsonLayer;
-let geoJsonData;
-let allMarkers = []; 
+let allMarkers = [];
 
 
 const countryNameToISO = {
@@ -104,12 +103,6 @@ $(document).ready(function () {
     });
     
 
-    $("#open-settings").on("click", function () {
-        openSettings();
-        $('#tuner-search').val('');
-        filterTuners("");
-    });
-
     $('#tuner-search').on('input', function () {
         const searchTerm = $(this).val();
         filterTuners(searchTerm, 'name');
@@ -152,15 +145,7 @@ function hideLoader() {
 function openMenu() {
     $('.panel').addClass('open');
     $('.panel-content-current').removeClass('open');
-    $('.panel-content-settings').removeClass('open');
     $('.panel-content-all').addClass('open');
-}
-
-function openSettings() {
-    $('.panel').addClass('open');
-    $('.panel-content-current').removeClass('open');
-    $('.panel-content-all').removeClass('open');
-    $('.panel-content-settings').addClass('open');
 }
 
 function getTuners() {
@@ -172,21 +157,23 @@ function getTuners() {
     });
 }
 
-function populateTunerList(tunersOnline, geojsonData) {
-    // Clear existing content
-    $('.tuner-list').empty();
+function populateTunerList(tunersOnline) {
+    // Clear existing tuners, keeping the .no-content placeholder
+    $('.tuner-list .tuner').remove();
 
-    tunersOnline.forEach((tuner, index) => {
-        // Add the tuner to the list if it passed the checks
-        let tunerInfo = `<div class="tuner tuner-status-${tuner.status}" tabindex="0" data-index="${index}" data-search="${tuner.country} ${tuner.name} ${tuner.url} ${tuner.status} ${tuner.version} ${tuner.tuner}">
-            <div class="tuner-flag"><span class="fi fi-${tuner.country}"></span></div>
-            <div class="tuner-basic-info">
-                <h2>${tuner.name}</h2>
-                <p class="shorten">${tuner.url}</p>
+    // Server fields come from third-party owners, so escape everything
+    const html = tunersOnline.map((tuner, index) => {
+        const e = v => escapeHtml(String(v ?? ''));
+        return `<div class="tuner tuner-status-${e(tuner.status)}" tabindex="0" data-index="${index}" data-search="${e(`${tuner.country} ${tuner.name} ${tuner.url} ${tuner.status} ${tuner.version} ${tuner.tuner}`)}">
+            <div class="tuner-bg-flag fi fi-${e(tuner.country)}"></div>            <div class="tuner-basic-info">
+                <h2>${e(tuner.name)}</h2>
+                <p class="shorten">${e(tuner.url)}</p>
             </div>
         </div>`;
-        $('.tuner-list').append(tunerInfo);
-    });
+    }).join('');
+    $('.tuner-list').append(html);
+
+    filterTuners(""); // fills the list's status counters even if the list is never opened via the bottom bar
 
     $('.tuner').on('click', function () {
         const index = $(this).data('index');
@@ -205,6 +192,7 @@ function populateTunerList(tunersOnline, geojsonData) {
     }
 
     $(document).on('keydown', function (e) {
+        if ($(e.target).is('input, textarea')) return; // don't hijack keys while typing
         const tuners = $('.tuner');
         switch (e.key) {
             case 'ArrowDown':
@@ -245,10 +233,10 @@ function onTunerClick(index) {
     const currentMarker = tunersOnline[index];
     const isSupporter = ((currentMarker.url).includes('fmtuner.org') ? true : false);
 
-    $('.current-tuner-country').html('<span class="fi fi-'+ currentMarker.country + '"></span>')
+    $('.current-tuner-header-flag').attr('class', 'current-tuner-header-flag fi fi-' + currentMarker.country);
     $('#current-tuner-name').text(currentMarker.name);
     $('#current-tuner-desc').text(currentMarker.desc);
-    $('#current-tuner-supporter').css('display', isSupporter ? 'initial' : 'none');
+    $('#current-tuner-supporter').css('display', isSupporter ? 'flex' : 'none');
     $('#current-tuner-location').css('display', currentMarker.countryName !== null ? 'block' : 'none');
     $('#current-tuner-city').text(currentMarker.city);
     $('#current-tuner-sponsor-url').css('display', currentMarker.sponsor_url.length > 0 ? 'block' : 'none');
@@ -272,17 +260,17 @@ function onTunerClick(index) {
 
     if(currentMarker.tuner) {
         switch(currentMarker.tuner) {
-            case 'tef': $('#current-tuner-device').html('<strong>Device: </strong> TEF668x'); break;
-            case 'xdr': $('#current-tuner-device').html('<strong>Device: </strong> Sony XDR'); break;
-            case 'sdr': $('#current-tuner-device').html('<strong>Device: </strong> SDR (RTL-SDR or AirSpy)'); break;
-            case 'si47xx': $('#current-tuner-device').html('<strong>Device: </strong> SkyWorks Si473x'); break;
-            default: $('#current-tuner-device').html('<strong>Device: </strong> TEF668x'); break;
+            case 'tef': $('#current-tuner-device').text('TEF668x'); break;
+            case 'xdr': $('#current-tuner-device').text('Sony XDR'); break;
+            case 'sdr': $('#current-tuner-device').text('SDR (RTL-SDR or AirSpy)'); break;
+            case 'si47xx': $('#current-tuner-device').text('SkyWorks Si473x'); break;
+            default: $('#current-tuner-device').text('TEF668x'); break;
         }
     } else {
-        $('#current-tuner-device').empty();
+        $('#current-tuner-device').text('Unknown');
     }
 
-    currentMarker.bwLimit?.length > 1 ? $('#current-tuner-limits').html('<strong>Tune limit: </strong>' + currentMarker.bwLimit) : $('#current-tuner-limits').html('<strong>Tune limit: </strong> None');
+    $('#current-tuner-limits').text(currentMarker.bwLimit?.length > 1 ? currentMarker.bwLimit : 'None');
     currentMarker.version ? $('#current-tuner-version').text('FM-DX Webserver v' + currentMarker.version) : null;
     currentMarker.contact?.length > 0 ? $('#current-tuner-contact').text(currentMarker.contact) : $('#current-tuner-contact').text('No contact available.');
     if (currentMarker.os.includes("Linux") || currentMarker.os.includes("Windows") || currentMarker.os.includes("Darwin")) {
@@ -299,58 +287,27 @@ function onTunerClick(index) {
         const icon = getOsIcon(currentMarker.os);
         
         currentMarker.os?.length > 0 
-            ? $('#current-tuner-version').append('<br>[', icon, currentMarker.os, ']') 
+            ? $('#current-tuner-version').append('<br>[', icon, document.createTextNode(currentMarker.os), ']')
             : null;
     }    
 
     $('#current-tuner-bitrate').text(currentMarker.audioQuality);
 
-    let linkToTuner = currentMarker.url + '?';
-
-    // Parameter names
-    const params = [
-        'theme',
-        'signalUnits',
-        'noPlugins',
-        'psUnderscores',
-        'disableBackground'
-    ];
-    
-    // Array to hold query strings
-    const queryStrings = [];
-    
-    // Loop through the parameters
-    params.forEach(param => {
-        const value = localStorage.getItem(param);
-        if (value && (param !== 'theme' || value !== 'none')) {
-            queryStrings.push(`${param}=${value}`);
-        }
-    });
-    
-    // Join the query strings with '&' and append to the base URL
-    linkToTuner += queryStrings.join('&');
-
     $('.current-tuner-link').find('span').text(currentMarker.url);
-    $('.current-tuner-link').attr('href', linkToTuner);
-    $('.current-tuner-status').html('<div class="tuner-status-' + currentMarker.status + '"></div>')
+    $('.current-tuner-link').attr('href', currentMarker.url);
+    $('.panel-current-connect').attr('class', 'panel-current-connect tuner-status-' + currentMarker.status);
 
     parseMarkdown();
 
     $('.panel').addClass('open');
     $('.panel-content-all').removeClass('open');
-    $('.panel-content-settings').removeClass('open');
     $('.panel-content-current').addClass('open');
 }
 
-// Function to get color based on some data value
-function getColor() {
-    return '#555';
-}
-
 // Function to style the GeoJSON layer
-function style(feature) {
+function style() {
     return {
-        fillColor: getColor(feature.properties.value),
+        fillColor: '#555',
         weight: 3.5,
         opacity: 1,
         color: '#222',
@@ -360,39 +317,18 @@ function style(feature) {
 
 let isMarkerHovered = false; // Flag to indicate if a marker is hovered
 
-// Function to highlight countries on hover and show tooltip with country name
+// Function to highlight countries on hover (tooltip is bound once in onEachFeature)
 function highlightFeature(e) {
-    const layer = e.target;
-
-    // Set the style for the hovered layer
-    layer.setStyle({
+    e.target.setStyle({
         weight: 5,
         dashArray: '',
         fillOpacity: 0.7,
     });
-
-    // Bind tooltip to layer with country name and update position on mousemove
-    const tooltip = L.tooltip({
-        permanent: false,
-        direction: 'top',
-        className: 'country-tooltip',
-        offset: L.point(0, 0)
-    })
-    .setContent(layer.feature.properties.name);
-
-    // Update tooltip position on mousemove
-    layer.on('mousemove', function(ev) {
-        tooltip.setLatLng(ev.latlng);
-    });
-
-    layer.bindTooltip(tooltip).openTooltip(e.latlng);
 }
 
 function resetHighlight(e) {
-    const layer = e.target;
     if (!isMarkerHovered) {
-        geojsonLayer.resetStyle(layer);
-        layer.closeTooltip();
+        geojsonLayer.resetStyle(e.target);
     }
 }
 
@@ -411,7 +347,6 @@ function onCountryClick(e) {
         openMenu();
     } else {
         $('.panel-content-current').removeClass('open');
-        $('.panel-content-settings').removeClass('open');
         $('.panel-content-all').addClass('open');
     }
 }
@@ -426,8 +361,9 @@ function initializeMap() {
             zoomControl: true,
             attributionControl: false,
             zoomSnap: 0.1,
-            zoomDelta: 1
-        });        
+            zoomDelta: 1,
+            preferCanvas: true // draw country polygons on one canvas instead of thousands of SVG paths
+        });
 
         var bounds = L.latLngBounds([
             [-90, -250], // South-West coordinates
@@ -460,11 +396,7 @@ function addMarkersAndGeoJson(tuners) {
     fetch('countries.pbf')
         .then(response => response.arrayBuffer())
         .then(buf => {
-            geojsonData = geobuf.decode(new Pbf(buf));
-
-            geojsonData.features.forEach(feature => {
-                feature.properties.value = 1;
-            });
+            const geojsonData = geobuf.decode(new Pbf(buf));
 
             if (geojsonLayer) {
                 map.removeLayer(geojsonLayer);
@@ -473,6 +405,11 @@ function addMarkersAndGeoJson(tuners) {
             geojsonLayer = L.geoJson(geojsonData, {
                 style: style,
                 onEachFeature: function (feature, layer) {
+                    layer.bindTooltip(escapeHtml(String(feature.properties.name ?? '')), {
+                        sticky: true, // follows the mouse
+                        direction: 'top',
+                        className: 'country-tooltip'
+                    });
                     layer.on({
                         mouseover: highlightFeature,
                         mouseout: resetHighlight,
@@ -500,6 +437,7 @@ function addMarkersAndGeoJson(tuners) {
                     const namesList = childMarkers
                         .map(marker => marker.options.tuner && marker.options.tuner.name)
                         .filter(name => name)
+                        .map(escapeHtml)
                         .join("<br>");
                     cluster.bindTooltip(namesList || "", {
                         permanent: false,
@@ -549,7 +487,7 @@ function addMarkersAndGeoJson(tuners) {
                             keyboard: false
                         });
 
-                        marker.bindTooltip(tuner.name + (isSupporter ? '<br><span style="display: block;font-size: 12px;font-weight: 300;text-align: center;margin: auto;">Supporter</span>' : ''), {
+                        marker.bindTooltip(escapeHtml(String(tuner.name ?? '')) + (isSupporter ? '<br><span style="display: block;font-size: 12px;font-weight: 300;text-align: center;margin: auto;">Supporter</span>' : ''), {
                             permanent: false,
                             direction: 'top'
                         });
@@ -571,8 +509,7 @@ function addMarkersAndGeoJson(tuners) {
             }
 
             filterMarkers();
-            populateTunerList(tunersOnline, geojsonData);
-            $('.receivers-button').css('z-index', 1000);
+            populateTunerList(tunersOnline);
 
             hideLoader();
 
@@ -584,31 +521,20 @@ function addMarkersAndGeoJson(tuners) {
 }
 
 function filterMarkers() {
-    allMarkers.forEach(entry => {
-        const { marker, clusterGroup } = entry;
-        let shouldShow = true;
+    // Collect changes per group, then apply them in one batch (one re-cluster per group instead of per marker)
+    const changes = new Map();
+    allMarkers.forEach(({ marker, clusterGroup }) => {
+        const status = marker.options.tunerStatus;
+        const shouldShow = !((hideAvailable && status === 1) || (hideLocked && status === 2) || (hideUnreachable && status === 0));
 
-        if (hideAvailable && marker.options.tunerStatus === 1) {
-            shouldShow = false;
-        }
-        if (hideLocked && marker.options.tunerStatus === 2) {
-            shouldShow = false;
-        }
-        if (hideUnreachable && marker.options.tunerStatus === 0) {
-            shouldShow = false;
-        }
-
-        if (shouldShow) {
-            if (!clusterGroup.hasLayer(marker)) {
-                console.log('Adding marker:', marker.options.tuner.name);
-                clusterGroup.addLayer(marker);
-            }
-        } else {
-            if (clusterGroup.hasLayer(marker)) {
-                console.log('Removing marker:', marker.options.tuner.name);
-                clusterGroup.removeLayer(marker);
-            }
-        }
+        if (!changes.has(clusterGroup)) changes.set(clusterGroup, { add: [], remove: [] });
+        const isShown = clusterGroup.hasLayer(marker);
+        if (shouldShow && !isShown) changes.get(clusterGroup).add.push(marker);
+        if (!shouldShow && isShown) changes.get(clusterGroup).remove.push(marker);
+    });
+    changes.forEach(({ add, remove }, clusterGroup) => {
+        if (remove.length) clusterGroup.removeLayers(remove);
+        if (add.length) clusterGroup.addLayers(add);
     });
 
     Object.values(clustersByStatus).forEach(clusterGroup => {
@@ -627,7 +553,8 @@ function filterMarkers() {
 function zoomToCountry(countryCode, geojsonData) {
     const mainlandBounds = {
         "NL": [[50.5, 3.36], [53.6, 7.2]], // Mainland Netherlands
-        "FR": [[41.3, -5.14], [51.1, 9.66]] // Mainland France
+        "FR": [[41.3, -5.14], [51.1, 9.66]], // Mainland France
+        "US": [[24.4, -125.0], [49.4, -66.9]] // Contiguous USA (excludes Alaska, Hawaii, territories)
     };
 
     if (mainlandBounds[countryCode]) {
@@ -640,7 +567,7 @@ function zoomToCountry(countryCode, geojsonData) {
         openMenu();
     } else {
         geojsonData.features.forEach(feature => {
-            if (feature.properties.ISO_A2 === countryCode) {
+            if (feature.properties["ISO3166-1-Alpha-2"] === countryCode) {
                 const bounds = L.geoJSON(feature).getBounds();
                 map.fitBounds(bounds);
 

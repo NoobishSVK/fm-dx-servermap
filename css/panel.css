@@ -1,19 +1,20 @@
 .panel-content-all,
 .panel-content-current,
-.panel-content-settings,
 .panel {
-    transition: all 0.3s ease; /* Adjust timing and easing as needed */
+    transition: all 0.3s ease;
 }
 
 .panel {
     width: 450px;
     display: none;
     position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    background: #222c;
+    right: 20px;
+    top: 20px;
+    height: calc(100% - 40px);
+    background-color: #333c;
     backdrop-filter: blur(5px);
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .panel.open {
@@ -22,9 +23,11 @@
 }
 
 .panel h3 {
-    font-size: 28px;
-    margin-bottom: 0;
+    font-size: 16px;
     font-weight: 300;
+    text-transform: uppercase;
+    color: var(--color-4);
+    margin: 0 0 6px 0;
 }
 
 .panel p {
@@ -35,110 +38,95 @@
     text-decoration: underline;
 }
 
-.panel table.status-table {
-    width: 80%;
-    margin: auto;
-}
-
-.panel table.status-table th {
-    width: 100px;
-}
-
-.panel table.status-table td {
-    font-size: 28px;
-    font-weight: 100;
-}
-
-.info-table {
-    width: 90%;
-    margin: auto;
-}
-
-.info-table td {
-    padding: 10px;
-}
-
 .panel .panel-sidebar {
     width: 64px;
+    min-width: 40px;
     height: 100%;
-    background-color: #444;
+    background-color: #2228;
     cursor: pointer;
-    transition: 0.35s ease-in-out background-color;
+    transition: 0.35s ease-in-out background-color, 0.35s ease-in-out color;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 36px;
-    color: #aaa;
-}
-
-.panel .shorten {
-  text-overflow: ellipsis;
-  overflow: hidden;
-  width: auto;
-  white-space: nowrap;
-  max-width: 200px;
-}
-
-.panel-current-main {
-    height: calc(100% - 100px);
-    overflow-y: auto;
-}
-
-.panel-current-connect {
-    height: 100px;
-    flex-direction: column;
+    color: #888;
 }
 
 .panel .panel-sidebar:hover {
-    background-color: #666;
+    background-color: #2229;
+    color: var(--color-main-bright);
 }
 
-.panel .panel-content-current, .panel .panel-content-all, .panel-content-settings {
+.panel .shorten {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: auto;
+    white-space: nowrap;
+    max-width: 320px;
+}
+
+.panel .panel-content-current, .panel .panel-content-all {
     width: 100%;
+    min-width: 0;
     text-align: center;
-    padding-top: 5px;
     color: #aaa;
     display: none;
 }
 
-.panel .panel-content-current, .panel .panel-content-settings {
-    overflow-y: auto;
+.panel .panel-content-current.open, .panel .panel-content-all.open.open {
+    display: flex;
+    flex-direction: column;
 }
 
-.panel .panel-content-current.open, .panel .panel-content-all.open, .panel .panel-content-settings.open {
-    display:flex;
-    flex-direction:column;
+.panel .logo {
+    margin: 16px;
 }
 
-#current-tuner-desc {
-    width: 80%;
-    margin: 0 auto;
+/* ---------- Server list ---------- */
+
+.panel .search {
+    padding: 0 12px 10px;
+}
+
+.panel .search input[type="text"] {
+    height: 40px;
+    background: #2228;
+    border-radius: 10px;
+    padding: 10px 15px;
+    color: #ccc;
+    transition: 0.35s ease background-color;
+}
+
+.panel .search input[type="text"]:focus {
+    background: #222c;
 }
 
 .tuner-list {
     height: 100%;
     text-align: left;
     overflow-y: auto;
+    /* padding sits under the fades, so first/last items are fully visible at the scroll ends */
+    padding: 16px 12px 40px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16px, #000 calc(100% - 40px), transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 16px, #000 calc(100% - 40px), transparent);
 }
 
 .tuner {
-    padding: 5px;
-    padding-left: 20px;
-    padding-right: 20px;
-    cursor: pointer;
+    position: relative;
+    overflow: hidden;
     display: flex;
-    transition: 0.35s ease-in-out background-color;
     align-items: center;
-    border-bottom: 1px solid rgba(16,16,16,0.3);
+    padding: 8px 15px 8px 18px;
+    margin-bottom: 6px;
+    border-radius: 10px;
+    background-color: #2226;
+    cursor: pointer;
+    transition: 0.35s ease-in-out background-color;
+    outline: none;
 }
 
 .tuner:hover {
-    background-color: #555;
-}
-
-.tuner.focused {
-    box-shadow: inset 0px 0px 1px #666; /* Highlight color for focused element */
-    background-color: #333; /* Background color for focused element */
+    background-color: #444c;
 }
 
 .tuner h2, .tuner p {
@@ -146,83 +134,261 @@
 }
 
 .tuner h2 {
-    font-size: 20px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #ccc;
+}
+
+.tuner p {
+    color: #888;
 }
 
 .tuner-basic-info {
     width: 100%;
+    min-width: 0;
 }
 
-.tuner-flag {
-    width: 32px;
+.tuner-status-0 { --status-color: #ffee00; }
+.tuner-status-1 { --status-color: #2bec7c; }
+.tuner-status-2 { --status-color: #ff4747; }
+
+/* Status shown as a thin line on the left */
+.tuner::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--status-color, #666);
+}
+
+.tuner > *:not(.tuner-bg-flag) {
+    position: relative;
+}
+
+/* Flag faded into the right side of the list item */
+.tuner .tuner-bg-flag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.18;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000);
+    mask-image: linear-gradient(to right, transparent, #000);
+    pointer-events: none;
 }
 
-.tuner-flag {
-    display: block;
-    width: 48px;
-}
-
-.tuner-status-0 {
-    /*background-color: #ffee00;*/
-    background: linear-gradient(90deg, rgba(2,0,36,0) 0%, rgba(9,9,121,0) 70%, rgba(255, 238, 0, 0.6) 150%); 
-}
-
-.tuner-status-1 {
-    background: linear-gradient(90deg, rgba(2,0,36,0) 0%, rgba(9,9,121,0) 70%, rgba(43, 236, 124, 0.6) 150%); 
-    /*background-color: #2bec7c;*/
-}
-
-.tuner-status-2 {
-    background: linear-gradient(90deg, rgba(2,0,36,0) 0%, rgba(9,9,121,0) 70%, rgba(255, 71, 71, 0.6) 150%); 
-    /*background-color: #ff4747;*/
-}
-
+/* Counters styled like the bottom bar */
 .online-status {
-    border-top: 1px solid #444;
-    background-color: #222a;
+    padding: 10px 0 12px;
+}
+
+.panel .status-info {
+    gap: 25px;
+    margin-bottom: 4px;
+}
+
+.panel .status-info h2 {
+    margin: 0;
+    color: #aaa;
+    font-size: 22px;
+    font-weight: 300;
+}
+
+.panel .status-info p {
+    font-size: 12px;
+    min-width: 65px;
+}
+
+/* ---------- Single server ---------- */
+
+.panel-current-main {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 12px;
+}
+
+/* Flag faded behind the server name */
+.current-tuner-header {
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 16px;
+}
+
+.current-tuner-header > *:not(.current-tuner-header-flag) {
+    position: relative;
+}
+
+.current-tuner-header-flag.fi {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    line-height: normal;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.2;
+    -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent);
+    mask-image: linear-gradient(to bottom, #000 30%, transparent);
+    pointer-events: none;
 }
 
 #current-tuner-name {
     font-size: 26px;
-    max-width: 90%;
-    margin: 0 auto;
     font-weight: 300;
+    color: #ddd;
+    max-width: 90%;
+    margin: 0 auto 4px;
+}
+
+#current-tuner-version {
+    color: #bbb;
+}
+
+#current-tuner-location {
+    margin-top: 8px;
+    color: #aaa;
+}
+
+.panel-card {
+    margin: 0 12px 10px;
+    padding: 12px 15px;
+    border-radius: 10px;
+    background-color: #2228;
+    text-align: left;
+}
+
+.current-tuner-basicinfo-container .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 15px;
+    padding: 6px 0;
+}
+
+.current-tuner-basicinfo-container .info-row > span:first-child {
+    color: #888;
+    white-space: nowrap;
+}
+
+.current-tuner-basicinfo-container .info-row p {
+    color: #ccc;
+    text-align: right;
+}
+
+#current-tuner-supporter {
+    align-items: center;
+    gap: 12px;
+}
+
+#current-tuner-supporter i {
+    font-size: 20px;
+    color: #ffd24a;
+}
+
+#current-tuner-desc, #current-tuner-contact {
+    line-height: 1.5;
+    word-break: break-word;
 }
 
 #current-tuner-sponsor-url {
     display: none;
+    margin-bottom: 10px;
 }
 
 #current-tuner-sponsor-image {
-  transition: 0.35s ease filter;
-  display: block;
-  margin: auto;
-  max-height: 100px;
-  object-fit: contain;
+    transition: 0.35s ease filter;
+    display: block;
+    margin: auto;
+    max-height: 100px;
+    object-fit: contain;
 }
 
 #current-tuner-sponsor-image:hover {
-  filter:brightness(1.25);
+    filter: brightness(1.25);
 }
 
-.current-tuner-link.link {
-    margin: 5px auto;
+.panel-current-connect {
+    display: flex;
+    flex-direction: column;
+}
+
+.current-tuner-connect-info {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 10px;
+}
+
+.current-tuner-status-text {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--status-color, #888);
+}
+
+.current-tuner-status-text::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: var(--status-color, #888);
+}
+
+.current-tuner-link.link:hover {
+    color: #bbb;
 }
 
 .current-tuner-link.button {
     margin: 0;
-    border-radius: 0;
     width: 100%;
-    height: 70px;
+    height: 60px;
+    border-radius: 0;
+    background-color: #888;
+    color: #222;
+    font-weight: 300;
+}
+
+.current-tuner-link.button:hover {
+    background-color: #aaa;
 }
 
 @media (max-width: 768px) {
     .panel {
-        width: 100%;
+        width: auto;
+        left: 10px;
+        right: 10px;
+        top: 10px;
+        height: calc(100% - 20px);
         z-index: 100;
     }
-  }
+
+    .panel.open {
+        flex-direction: column;
+    }
+
+    .panel .panel-sidebar {
+        width: 100%;
+        height: 36px;
+        min-height: 36px;
+        font-size: 20px;
+    }
+
+    .panel .panel-sidebar i {
+        transform: rotate(90deg);
+    }
+
+    .panel .panel-content-current, .panel .panel-content-all {
+        flex: 1;
+        min-height: 0;
+    }
+}
