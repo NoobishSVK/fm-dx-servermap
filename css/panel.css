@@ -209,7 +209,10 @@
 .panel-current-main {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 12px;
+    /* padding sits under the fade, so the last card is fully visible when scrolled to the end */
+    padding-bottom: 40px;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent);
 }
 
 /* Flag faded behind the server name */
