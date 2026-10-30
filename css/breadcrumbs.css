@@ -19,19 +19,96 @@ label {
 }
 
 .leaflet-tooltip {
-    background-color: #888;
-    border: 1px solid #222;
-    border-radius: 15px;
-    color: black;
+    background-color: #333c;
+    backdrop-filter: blur(5px);
+    border: none;
+    border-radius: 10px;
+    color: #ccc;
     font-weight: 600;
     font-size: 16px;
     font-family: 'Titillium Web', sans-serif;
-    padding: 10px 20px;
-    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+    padding: 8px 16px;
     transition: 0.3s ease opacity;
 }
 
-.leaflet-tooltip-top:before,
+.leaflet-tooltip.tuner-tooltip {
+    padding: 8px 18px 8px 20px;
+    width: max-content;
+    max-width: 280px;
+    white-space: normal;
+}
+
+.tuner-tooltip::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 10px 0 0 10px;
+    background: var(--status-color, #666);
+}
+
+.tuner-tooltip > *:not(.tuner-tooltip-flag) {
+    position: relative;
+}
+
+.tuner-tooltip .tuner-tooltip-flag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60%;
+    height: 100%;
+    line-height: normal;
+    border-radius: 0 10px 10px 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.2;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000);
+    mask-image: linear-gradient(to right, transparent, #000);
+}
+
+.tuner-tooltip h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ddd;
+}
+
+.tuner-tooltip p {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 300;
+    color: #999;
+}
+
+.tuner-tooltip .tuner-tooltip-supporter i {
+    color: #ffd24a;
+}
+
+.leaflet-tooltip-top:before {
+    border: none;
+    width: 12px;
+    height: 8px;
+    margin-bottom: -8px;
+    background-color: #333c;
+    backdrop-filter: blur(5px);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.leaflet-tooltip.tuner-tooltip.country-tooltip {
+    padding: 8px 18px;
+}
+
+.country-tooltip::after,
+.country-tooltip::before {
+    display: none;
+}
+
+.leaflet-tooltip-pane:has(.leaflet-tooltip:not(.country-tooltip)) .country-tooltip {
+    display: none;
+}
+
 .leaflet-tooltip-bottom:before,
 .leaflet-tooltip-left:before,
 .leaflet-tooltip-right:before {

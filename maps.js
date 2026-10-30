@@ -9,6 +9,13 @@ let geojsonLayer;
 let allMarkers = [];
 
 
+const tunerDevices = {
+    tef: 'TEF668x',
+    xdr: 'Sony XDR',
+    sdr: 'SDR (RTL-SDR or AirSpy)',
+    si47xx: 'SkyWorks Si473x'
+};
+
 const countryNameToISO = {
     "France": "FR",
     "Norway": "NO"
@@ -212,7 +219,6 @@ function populateTunerList(tunersOnline) {
         }
     });
 
-    // Ensure the focused class and styles
     $('.tuner').on('focus', function() {
         $(this).addClass('focused');
     }).on('blur', function() {
@@ -258,17 +264,7 @@ function onTunerClick(index) {
 
     currentMarker.audioChannels == 2 ? $('#current-tuner-channels').text('Stereo') : $('#current-tuner-channels').text('Mono');
 
-    if(currentMarker.tuner) {
-        switch(currentMarker.tuner) {
-            case 'tef': $('#current-tuner-device').text('TEF668x'); break;
-            case 'xdr': $('#current-tuner-device').text('Sony XDR'); break;
-            case 'sdr': $('#current-tuner-device').text('SDR (RTL-SDR or AirSpy)'); break;
-            case 'si47xx': $('#current-tuner-device').text('SkyWorks Si473x'); break;
-            default: $('#current-tuner-device').text('TEF668x'); break;
-        }
-    } else {
-        $('#current-tuner-device').text('Unknown');
-    }
+    $('#current-tuner-device').text(currentMarker.tuner ? (tunerDevices[currentMarker.tuner] || 'TEF668x') : 'Unknown');
 
     $('#current-tuner-limits').text(currentMarker.bwLimit?.length > 1 ? currentMarker.bwLimit : 'None');
     currentMarker.version ? $('#current-tuner-version').text('FM-DX Webserver v' + currentMarker.version) : null;
@@ -316,9 +312,11 @@ function style() {
 }
 
 let isMarkerHovered = false; // Flag to indicate if a marker is hovered
+let hoveredCountry = null;
 
 // Function to highlight countries on hover (tooltip is bound once in onEachFeature)
 function highlightFeature(e) {
+    hoveredCountry = e.target;
     e.target.setStyle({
         weight: 5,
         dashArray: '',
@@ -327,19 +325,20 @@ function highlightFeature(e) {
 }
 
 function resetHighlight(e) {
+    if (hoveredCountry === e.target) hoveredCountry = null;
     if (!isMarkerHovered) {
         geojsonLayer.resetStyle(e.target);
     }
 }
 
+function getCountryCode(props) {
+    const countryCode = props["ISO3166-1-Alpha-2"];
+    // some countries dont have a code, so we gotta check the full names
+    return (!countryCode || countryCode === -99) ? (countryNameToISO[props.name] || 'unknown') : countryCode;
+}
+
 function onCountryClick(e) {
-    const props = e.target.feature.properties;
-
-    let countryCode = props["ISO3166-1-Alpha-2"];
-
-    if (!countryCode || countryCode === -99) { // some countries dont have a code, so we gotta check the full names
-        countryCode = countryNameToISO[props.name] || 'unknown';
-    }
+    const countryCode = getCountryCode(e.target.feature.properties);
 
     filterTuners(countryCode, 'country');
     $('#tuner-search').val('Country: ' + countryCode);
@@ -372,8 +371,12 @@ function initializeMap() {
 
         map.setMaxBounds(bounds);
 
+        map.getContainer().addEventListener('mousemove', function (e) {
+            if (hoveredCountry && hoveredCountry.isTooltipOpen()) {
+                hoveredCountry.getTooltip().setLatLng(map.mouseEventToLatLng(e));
+            }
+        });
 
-        // Optional: Prevent panning out of bounds after dragging
         map.on('moveend', function() {
             // Check if the map's current bounds are within the set bounds
             if (!bounds.contains(map.getBounds())) {
@@ -402,13 +405,23 @@ function addMarkersAndGeoJson(tuners) {
                 map.removeLayer(geojsonLayer);
             }
 
+            const serversPerCountry = {};
+            tuners.forEach(tuner => {
+                const code = String(tuner.country ?? '').toLowerCase();
+                serversPerCountry[code] = (serversPerCountry[code] || 0) + 1;
+            });
+
             geojsonLayer = L.geoJson(geojsonData, {
                 style: style,
                 onEachFeature: function (feature, layer) {
-                    layer.bindTooltip(escapeHtml(String(feature.properties.name ?? '')), {
-                        sticky: true, // follows the mouse
+                    const code = String(getCountryCode(feature.properties)).toLowerCase();
+                    const count = serversPerCountry[code] || 0;
+                    layer.bindTooltip(`<div class="tuner-tooltip-flag fi fi-${escapeHtml(code)}"></div>
+                        <h2>${escapeHtml(String(feature.properties.name ?? ''))}</h2>
+                        <p>${count ? count + (count === 1 ? ' server' : ' servers') : 'No servers'}</p>`, {
+                        sticky: true,
                         direction: 'top',
-                        className: 'country-tooltip'
+                        className: 'tuner-tooltip country-tooltip'
                     });
                     layer.on({
                         mouseover: highlightFeature,
@@ -426,7 +439,8 @@ function addMarkersAndGeoJson(tuners) {
                         return L.divIcon({
                             html: `<div class="marker marker-status-${status} flex-center" style="font-family: 'Titillium Web'">${cluster.getChildCount()}</div>`,
                             className: `marker marker-status-${status} flex-center`,
-                            iconSize: [24, 24]
+                            iconSize: [24, 24],
+                            tooltipAnchor: [0, -20]
                         });
                     }
                 });
@@ -480,16 +494,23 @@ function addMarkersAndGeoJson(tuners) {
                             icon: L.divIcon({
                                 className: 'marker marker-status-' + tuner.status,
                                 iconSize: [12, 12],
-                                iconAnchor: [8, 8]
+                                iconAnchor: [8, 8],
+                                tooltipAnchor: [-2, -16]
                             }),
                             tunerStatus: tuner.status,
                             tuner: tuner,
                             keyboard: false
                         });
 
-                        marker.bindTooltip(escapeHtml(String(tuner.name ?? '')) + (isSupporter ? '<br><span style="display: block;font-size: 12px;font-weight: 300;text-align: center;margin: auto;">Supporter</span>' : ''), {
+                        const e = v => escapeHtml(String(v ?? ''));
+                        const details = [tuner.city, tuner.tuner ? (tunerDevices[tuner.tuner] || 'TEF668x') : null].filter(Boolean).map(e).join(' · ');
+                        marker.bindTooltip(`<div class="tuner-tooltip-flag fi fi-${e(tuner.country)}"></div>
+                            <h2>${e(tuner.name)}</h2>
+                            ${details ? `<p>${details}</p>` : ''}
+                            ${isSupporter ? '<p class="tuner-tooltip-supporter"><i class="fa-solid fa-star"></i> Supporter</p>' : ''}`, {
                             permanent: false,
-                            direction: 'top'
+                            direction: 'top',
+                            className: 'tuner-tooltip tuner-status-' + e(tuner.status)
                         });
 
                         marker.on('click', function () {onTunerClick(index);});
