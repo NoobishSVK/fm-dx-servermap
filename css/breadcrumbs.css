@@ -19,7 +19,7 @@ label {
 }
 
 .leaflet-tooltip {
-    background-color: #333c;
+    background-color: #333e;
     backdrop-filter: blur(5px);
     border: none;
     border-radius: 10px;
@@ -79,7 +79,7 @@ label {
     margin: 0;
     font-size: 12px;
     font-weight: 300;
-    color: #999;
+    color: #bbb;
 }
 
 .tuner-tooltip .tuner-tooltip-supporter i {
@@ -91,7 +91,7 @@ label {
     width: 12px;
     height: 8px;
     margin-bottom: -8px;
-    background-color: #333c;
+    background-color: #333e;
     backdrop-filter: blur(5px);
     clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
