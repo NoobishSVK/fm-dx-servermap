@@ -42,8 +42,9 @@ label {
 }
 
 .tuner-tooltip .tuner-tooltip-sponsor {
-    max-width: 60px;
-    max-height: 40px;
+    /* fixed box: SVG logos' intrinsic size otherwise squeezes the text column */
+    width: 60px;
+    height: 40px;
     object-fit: contain;
     flex-shrink: 0;
 }
