@@ -505,9 +505,12 @@ function addMarkersAndGeoJson(tuners) {
                         const e = v => escapeHtml(String(v ?? ''));
                         const details = [tuner.city, tuner.tuner ? (tunerDevices[tuner.tuner] || 'TEF668x') : null].filter(Boolean).map(e).join(' · ');
                         marker.bindTooltip(`<div class="tuner-tooltip-flag fi fi-${e(tuner.country)}"></div>
-                            <h2>${e(tuner.name)}</h2>
-                            ${details ? `<p>${details}</p>` : ''}
-                            ${isSupporter ? '<p class="tuner-tooltip-supporter"><i class="fa-solid fa-star"></i> Supporter</p>' : ''}`, {
+                            ${tuner.sponsor_image ? `<img class="tuner-tooltip-sponsor" src="${e(tuner.sponsor_image)}" alt="">` : ''}
+                            <div>
+                                <h2>${e(tuner.name)}</h2>
+                                ${details ? `<p>${details}</p>` : ''}
+                                ${isSupporter ? '<p class="tuner-tooltip-supporter"><i class="fa-solid fa-star"></i> Supporter</p>' : ''}
+                            </div>`, {
                             permanent: false,
                             direction: 'top',
                             className: 'tuner-tooltip tuner-status-' + e(tuner.status)

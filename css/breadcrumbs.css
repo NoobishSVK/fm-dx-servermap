@@ -34,8 +34,18 @@ label {
 .leaflet-tooltip.tuner-tooltip {
     padding: 8px 18px 8px 20px;
     width: max-content;
-    max-width: 280px;
+    max-width: 400px;
     white-space: normal;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tuner-tooltip .tuner-tooltip-sponsor {
+    max-width: 60px;
+    max-height: 40px;
+    object-fit: contain;
+    flex-shrink: 0;
 }
 
 .tuner-tooltip::after {
@@ -98,6 +108,7 @@ label {
 
 .leaflet-tooltip.tuner-tooltip.country-tooltip {
     padding: 8px 18px;
+    display: block;
 }
 
 .country-tooltip::after,
