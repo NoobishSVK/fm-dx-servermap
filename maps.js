@@ -75,8 +75,8 @@ $(document).ready(function () {
 
     $(".open-tuners").on("click", function () {
         openMenu();
-        $('#tuner-search').val('');
-        filterTuners("");
+        if (window.LocationFilter) LocationFilter.clear();
+        else { $('#tuner-search').val(''); filterTuners(""); }
     });
 
     $('.discover-tuners').on('click', function() {
@@ -112,7 +112,8 @@ $(document).ready(function () {
 
     $('#tuner-search').on('input', function () {
         const searchTerm = $(this).val();
-        filterTuners(searchTerm, 'name');
+        if (window.LocationFilter) LocationFilter.setQuery(searchTerm);
+        else filterTuners(searchTerm, 'name');
     });
 
     $(".leaflet-control a").each(function() {
@@ -340,8 +341,8 @@ function getCountryCode(props) {
 function onCountryClick(e) {
     const countryCode = getCountryCode(e.target.feature.properties);
 
-    filterTuners(countryCode, 'country');
-    $('#tuner-search').val('Country: ' + countryCode);
+    if (window.LocationFilter) LocationFilter.setCountry(countryCode);
+    else { filterTuners(countryCode, 'country'); $('#tuner-search').val('Country: ' + countryCode); }
     if (!$('.panel').hasClass('open')) {
         openMenu();
     } else {
@@ -534,6 +535,7 @@ function addMarkersAndGeoJson(tuners) {
 
             filterMarkers();
             populateTunerList(tunersOnline);
+            if (window.LocationFilter) LocationFilter.init(tunersOnline);
 
             hideLoader();
 
@@ -585,8 +587,8 @@ function zoomToCountry(countryCode, geojsonData) {
         const bounds = mainlandBounds[countryCode];
         map.fitBounds(bounds);
 
-        filterTuners(countryCode.toLowerCase(), 'country');
-        $('#tuner-search').val('Country: ' + countryCode);
+        if (window.LocationFilter) LocationFilter.setCountry(countryCode);
+        else { filterTuners(countryCode.toLowerCase(), 'country');         $('#tuner-search').val('Country: ' + countryCode); }
 
         openMenu();
     } else {
@@ -595,8 +597,8 @@ function zoomToCountry(countryCode, geojsonData) {
                 const bounds = L.geoJSON(feature).getBounds();
                 map.fitBounds(bounds);
 
-                filterTuners(countryCode.toLowerCase(), 'country');
-                $('#tuner-search').val('Country: ' + countryCode);
+                if (window.LocationFilter) LocationFilter.setCountry(countryCode);
+                else { filterTuners(countryCode.toLowerCase(), 'country');                 $('#tuner-search').val('Country: ' + countryCode); }
 
                 openMenu(); 
             }
