@@ -57,7 +57,15 @@ $(document).ready(function () {
     });
 
     showLoader();  // Show loader when fetching tuners
-    getTuners();
+    initializeMap();
+    const tunersLoaded = getTuners();
+    // Start the big countries file only after tuners, so on slow links it doesn't eat the bandwidth the markers need
+    const countriesLoaded = Promise.resolve(tunersLoaded).catch(() => {}).then(loadCountries);
+
+    const countryCode = new URLSearchParams(window.location.search).get('country');
+    if (countryCode) {
+        Promise.all([countriesLoaded, tunersLoaded]).then(([features]) => zoomToCountry(countryCode.toUpperCase(), { features }));
+    }
 
     const panel = $('.panel');
     const tunerList = $('.panel-content-all');
@@ -157,10 +165,9 @@ function openMenu() {
 
 function getTuners() {
     $.get("./api/", function (data) {
-    //$.get("./data.json", function (data) { // DEBUGGING PURPOSES
+    //return $.get("./data.json", function (data) { // DEBUGGING PURPOSES
         tunersOnline = ('dataset' in data) ? data['dataset'] : [];
-        initializeMap();
-        addMarkersAndGeoJson(tunersOnline);
+        addMarkers(tunersOnline);
     });
 }
 
@@ -300,7 +307,6 @@ function onTunerClick(index) {
     $('.panel-content-current').addClass('open');
 }
 
-// Function to style the GeoJSON layer
 function style() {
     return {
         fillColor: '#555',
@@ -311,10 +317,9 @@ function style() {
     };
 }
 
-let isMarkerHovered = false; // Flag to indicate if a marker is hovered
+let isMarkerHovered = false;
 let hoveredCountry = null;
 
-// Function to highlight countries on hover (tooltip is bound once in onEachFeature)
 function highlightFeature(e) {
     hoveredCountry = e.target;
     e.target.setStyle({
@@ -392,156 +397,243 @@ function initializeMap() {
     }
 }
 
-function addMarkersAndGeoJson(tuners) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const countryCode = urlParams.get('country');
+let serversPerCountry = {};
 
-    fetch('countries.pbf')
-        .then(response => response.arrayBuffer())
-        .then(buf => {
-            const geojsonData = geobuf.decode(new Pbf(buf));
-
-            if (geojsonLayer) {
-                map.removeLayer(geojsonLayer);
-            }
-
-            const serversPerCountry = {};
-            tuners.forEach(tuner => {
-                const code = String(tuner.country ?? '').toLowerCase();
-                serversPerCountry[code] = (serversPerCountry[code] || 0) + 1;
+// Streams countries.pbf and draws each country as soon as its bytes have arrived. (Because I know some of you have slow ass connections)
+async function loadCountries() {
+    const newLayers = [];
+    geojsonLayer = L.geoJson(null, {
+        style: style,
+        onEachFeature: function (feature, layer) {
+            const code = String(getCountryCode(feature.properties)).toLowerCase();
+            layer.bindTooltip(() => {
+                const count = serversPerCountry[code] || 0;
+                return `<div class="tuner-tooltip-flag fi fi-${escapeHtml(code)}"></div>
+                    <h2>${escapeHtml(String(feature.properties.name ?? ''))}</h2>
+                    <p>${count ? count + (count === 1 ? ' server' : ' servers') : 'No servers'}</p>`;
+            }, {
+                sticky: true,
+                direction: 'top',
+                className: 'tuner-tooltip country-tooltip'
             });
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight,
+                click: onCountryClick
+            });
+            layer.setStyle({ opacity: 0, fillOpacity: 0 }); // fadeInCountries brings it up
+            newLayers.push(layer);
+        }
+    }).addTo(map);
 
-            geojsonLayer = L.geoJson(geojsonData, {
-                style: style,
-                onEachFeature: function (feature, layer) {
-                    const code = String(getCountryCode(feature.properties)).toLowerCase();
-                    const count = serversPerCountry[code] || 0;
-                    layer.bindTooltip(`<div class="tuner-tooltip-flag fi fi-${escapeHtml(code)}"></div>
-                        <h2>${escapeHtml(String(feature.properties.name ?? ''))}</h2>
-                        <p>${count ? count + (count === 1 ? ' server' : ' servers') : 'No servers'}</p>`, {
-                        sticky: true,
-                        direction: 'top',
-                        className: 'tuner-tooltip country-tooltip'
-                    });
-                    layer.on({
-                        mouseover: highlightFeature,
-                        mouseout: resetHighlight,
-                        click: onCountryClick
-                    });
+    const allFeatures = [];
+    let header = null;
+    let buf = new Uint8Array(0);
+    let pos = 0;
+
+    function varint(p) {
+        let val = 0, mul = 1;
+        while (p < buf.length) {
+            const b = buf[p++];
+            val += (b & 0x7f) * mul;
+            if (b < 0x80) return [val, p];
+            mul *= 128;
+        }
+        return null;
+    }
+
+    function drainFeatures() {
+        const parts = [];
+        if (!header) {
+            let p = 0;
+            while (true) {
+                const tag = varint(p);
+                if (!tag) return;
+                if (tag[0] === 0x22) {
+                    const len = varint(tag[1]);
+                    if (!len) return;
+                    header = buf.slice(0, p);
+                    pos = len[1];
+                    break;
                 }
-            }).addTo(map);
+                const val = varint(tag[1]); // varint value, or length prefix for wire type 2
+                if (!val) return;
+                p = (tag[0] & 7) === 2 ? val[1] + val[0] : val[1];
+                if (p > buf.length) return;
+            }
+        }
+        while (true) {
+            const tag = varint(pos);
+            if (!tag || tag[0] !== 0x0a) break; // not a Feature (or end of features)
+            const len = varint(tag[1]);
+            if (!len || len[1] + len[0] > buf.length) break;
+            parts.push(buf.subarray(pos, len[1] + len[0]));
+            pos = len[1] + len[0];
+        }
+        if (!parts.length) return;
 
-            const statusTypes = ["0", "1", "2", "unknown"];
-            statusTypes.forEach(status => {
-                const clusterGroup = L.markerClusterGroup({
-                    maxClusterRadius: 8,
-                    iconCreateFunction: function(cluster) {
-                        return L.divIcon({
-                            html: `<div class="marker marker-status-${status} flex-center" style="font-family: 'Titillium Web'">${cluster.getChildCount()}</div>`,
-                            className: `marker marker-status-${status} flex-center`,
-                            iconSize: [24, 24],
-                            tooltipAnchor: [0, -20]
-                        });
-                    }
+        const featureBytes = parts.reduce((n, p) => n + p.length, 0);
+        const fcLen = [];
+        for (let n = featureBytes; ; n = Math.floor(n / 128)) {
+            if (n < 128) { fcLen.push(n); break; }
+            fcLen.push((n & 0x7f) | 0x80);
+        }
+        const mini = new Uint8Array(header.length + 1 + fcLen.length + featureBytes);
+        mini.set(header);
+        let o = header.length;
+        mini[o++] = 0x22;
+        mini.set(fcLen, o);
+        o += fcLen.length;
+        parts.forEach(p => { mini.set(p, o); o += p.length; });
+
+        const features = geobuf.decode(new Pbf(mini)).features;
+        allFeatures.push(...features);
+        geojsonLayer.addData({ type: 'FeatureCollection', features });
+        fadeInCountries(newLayers.splice(0));
+    }
+
+    try {
+        const reader = (await fetch('countries.pbf')).body.getReader();
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            // Keep only the unparsed tail plus the new chunk (header is copied out once found)
+            const tail = buf.subarray(pos);
+            buf = new Uint8Array(tail.length + value.length);
+            buf.set(tail);
+            buf.set(value, tail.length);
+            pos = 0;
+            drainFeatures();
+        }
+    } catch (error) {
+        console.error('Error fetching GeoJSON data:', error);
+    }
+    return allFeatures;
+}
+
+function fadeInCountries(layers) {
+    const start = performance.now();
+    requestAnimationFrame(function step(now) {
+        const t = Math.min((now - start) / 400, 1);
+        const k = 1 - Math.pow(1 - t, 3); // ease-out cubic
+        layers.forEach(layer => layer !== hoveredCountry && layer.setStyle({ opacity: k, fillOpacity: k }));
+        if (t < 1) requestAnimationFrame(step);
+    });
+}
+
+function addMarkers(tuners) {
+    serversPerCountry = {};
+    tuners.forEach(tuner => {
+        const code = String(tuner.country ?? '').toLowerCase();
+        serversPerCountry[code] = (serversPerCountry[code] || 0) + 1;
+    });
+
+    const statusTypes = ["0", "1", "2", "unknown"];
+    statusTypes.forEach(status => {
+        const clusterGroup = L.markerClusterGroup({
+            maxClusterRadius: 8,
+            iconCreateFunction: function(cluster) {
+                return L.divIcon({
+                    html: `<div class="marker marker-status-${status} flex-center" style="font-family: 'Titillium Web'">${cluster.getChildCount()}</div>`,
+                    className: `marker marker-status-${status} flex-center`,
+                    iconSize: [24, 24],
+                    tooltipAnchor: [0, -20]
                 });
+            }
+        });
 
-                clusterGroup.on('clustermouseover', function(event) {
-                    const cluster = event.layer;
-                    const childMarkers = cluster.getAllChildMarkers();
-                    const namesList = childMarkers
-                        .map(marker => marker.options.tuner && marker.options.tuner.name)
-                        .filter(name => name)
-                        .map(escapeHtml)
-                        .join("<br>");
-                    cluster.bindTooltip(namesList || "", {
-                        permanent: false,
-                        direction: "top",
-                    }).openTooltip();
-                });
+        clusterGroup.on('clustermouseover', function(event) {
+            const cluster = event.layer;
+            const childMarkers = cluster.getAllChildMarkers();
+            const namesList = childMarkers
+                .map(marker => marker.options.tuner && marker.options.tuner.name)
+                .filter(name => name)
+                .map(escapeHtml)
+                .join("<br>");
+            cluster.bindTooltip(namesList || "", {
+                permanent: false,
+                direction: "top",
+            }).openTooltip();
+        });
 
-                clusterGroup.on('clustermouseout', function(event) {
-                    event.layer.closeTooltip();
-                });
+        clusterGroup.on('clustermouseout', function(event) {
+            event.layer.closeTooltip();
+        });
 
-                clustersByStatus[status] = clusterGroup;
-            });
+        clustersByStatus[status] = clusterGroup;
+    });
 
-            var markerPositions = [];
-            tuners.forEach((tuner, index) => {
-                if (tuner.coords && tuner.coords.length === 2) {
-                    var latitude = parseFloat(tuner.coords[0]);
-                    var longitude = parseFloat(tuner.coords[1]);
-                    const isSupporter = tuner.url.includes('fmtuner.org');
+    var markerPositions = [];
+    tuners.forEach((tuner, index) => {
+        if (tuner.coords && tuner.coords.length === 2) {
+            var latitude = parseFloat(tuner.coords[0]);
+            var longitude = parseFloat(tuner.coords[1]);
+            const isSupporter = tuner.url.includes('fmtuner.org');
 
-                    if (!isNaN(latitude) && !isNaN(longitude)) {
+            if (!isNaN(latitude) && !isNaN(longitude)) {
 
-                        let adjusted = false;
-                        let attempts = 0;
+                let adjusted = false;
+                let attempts = 0;
 
-                        while (!adjusted && attempts < 10) {
-                            let tooClose = markerPositions.some(pos => isTooClose(latitude, longitude, pos.lat, pos.lon));
-                            if (tooClose) {
-                                const { offsetLat, offsetLon } = getRandomOffset();
-                                latitude += offsetLat;
-                                longitude += offsetLon;
-                                attempts++;
-                            } else {
-                                adjusted = true;
-                            }
-                        }
-
-                        var marker = L.marker([latitude, longitude], {
-                            icon: L.divIcon({
-                                className: 'marker marker-status-' + tuner.status,
-                                iconSize: [12, 12],
-                                iconAnchor: [8, 8],
-                                tooltipAnchor: [-2, -16]
-                            }),
-                            tunerStatus: tuner.status,
-                            tuner: tuner,
-                            keyboard: false
-                        });
-
-                        const e = v => escapeHtml(String(v ?? ''));
-                        const details = [tuner.city, tuner.tuner ? (tunerDevices[tuner.tuner] || 'TEF668x') : null].filter(Boolean).map(e).join(' · ');
-                        marker.bindTooltip(`<div class="tuner-tooltip-flag fi fi-${e(tuner.country)}"></div>
-                            ${tuner.sponsor_image ? `<img class="tuner-tooltip-sponsor" src="${e(tuner.sponsor_image)}" alt="">` : ''}
-                            <div>
-                                <h2>${e(tuner.name)}</h2>
-                                ${details ? `<p>${details}</p>` : ''}
-                                ${isSupporter ? '<p class="tuner-tooltip-supporter"><i class="fa-solid fa-star"></i> Supporter</p>' : ''}
-                            </div>`, {
-                            permanent: false,
-                            direction: 'top',
-                            className: 'tuner-tooltip tuner-status-' + e(tuner.status)
-                        });
-
-                        marker.on('click', function () {onTunerClick(index);});
-                        marker.on('mouseover', function () {isMarkerHovered = true;});
-                        marker.on('mouseout', function () {isMarkerHovered = false;});
-
-                        const statusClusterGroup = clustersByStatus[tuner.status] || clustersByStatus["unknown"];
-                        statusClusterGroup.addLayer(marker);
-                        allMarkers.push({ marker: marker, clusterGroup: statusClusterGroup });
-                        markerPositions.push({ lat: latitude, lon: longitude });
+                while (!adjusted && attempts < 10) {
+                    let tooClose = markerPositions.some(pos => isTooClose(latitude, longitude, pos.lat, pos.lon));
+                    if (tooClose) {
+                        const { offsetLat, offsetLon } = getRandomOffset();
+                        latitude += offsetLat;
+                        longitude += offsetLon;
+                        attempts++;
+                    } else {
+                        adjusted = true;
                     }
                 }
-            });
 
-            for (let status in clustersByStatus) {
-                map.addLayer(clustersByStatus[status]);
+                var marker = L.marker([latitude, longitude], {
+                    icon: L.divIcon({
+                        className: 'marker marker-status-' + tuner.status,
+                        iconSize: [12, 12],
+                        iconAnchor: [8, 8],
+                        tooltipAnchor: [-2, -16]
+                    }),
+                    tunerStatus: tuner.status,
+                    tuner: tuner,
+                    keyboard: false
+                });
+
+                const e = v => escapeHtml(String(v ?? ''));
+                const details = [tuner.city, tuner.tuner ? (tunerDevices[tuner.tuner] || 'TEF668x') : null].filter(Boolean).map(e).join(' · ');
+                marker.bindTooltip(`<div class="tuner-tooltip-flag fi fi-${e(tuner.country)}"></div>
+                    ${tuner.sponsor_image ? `<img class="tuner-tooltip-sponsor" src="${e(tuner.sponsor_image)}" alt="">` : ''}
+                    <div>
+                        <h2>${e(tuner.name)}</h2>
+                        ${details ? `<p>${details}</p>` : ''}
+                        ${isSupporter ? '<p class="tuner-tooltip-supporter"><i class="fa-solid fa-star"></i> Supporter</p>' : ''}
+                    </div>`, {
+                    permanent: false,
+                    direction: 'top',
+                    className: 'tuner-tooltip tuner-status-' + e(tuner.status)
+                });
+
+                marker.on('click', function () {onTunerClick(index);});
+                marker.on('mouseover', function () {isMarkerHovered = true;});
+                marker.on('mouseout', function () {isMarkerHovered = false;});
+
+                const statusClusterGroup = clustersByStatus[tuner.status] || clustersByStatus["unknown"];
+                statusClusterGroup.addLayer(marker);
+                allMarkers.push({ marker: marker, clusterGroup: statusClusterGroup });
+                markerPositions.push({ lat: latitude, lon: longitude });
             }
+        }
+    });
 
-            filterMarkers();
-            populateTunerList(tunersOnline);
+    for (let status in clustersByStatus) {
+        map.addLayer(clustersByStatus[status]);
+    }
 
-            hideLoader();
+    filterMarkers();
+    populateTunerList(tunersOnline);
 
-            if (countryCode) {
-                zoomToCountry(countryCode.toUpperCase(), geojsonData);
-            }
-        })
-        .catch(error => console.error('Error fetching GeoJSON data:', error));
+    hideLoader();
+    map.getPane('markerPane').animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: 'ease-out' });
 }
 
 function filterMarkers() {
