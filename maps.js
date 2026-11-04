@@ -59,9 +59,9 @@ $(document).ready(function () {
     showLoader();  // Show loader when fetching tuners
     initializeMap();
     createClusterGroups();
-    // Both stream in parallel; tuners first so their request is queued ahead of the big countries file
+    // countries file would grab the connection first on slow links (3g or someone who maybe uses 2g? y'all crazy) - we wanna see tuners instead of the countries first
     const tunersLoaded = getTuners();
-    const countriesLoaded = loadCountries();
+    const countriesLoaded = tunersLoaded.then(loadCountries);
 
     const countryCode = new URLSearchParams(window.location.search).get('country');
     if (countryCode) {
