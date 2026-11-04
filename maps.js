@@ -58,9 +58,10 @@ $(document).ready(function () {
 
     showLoader();  // Show loader when fetching tuners
     initializeMap();
+    createClusterGroups();
+    // Both stream in parallel; tuners first so their request is queued ahead of the big countries file
     const tunersLoaded = getTuners();
-    // Start the big countries file only after tuners, so on slow links it doesn't eat the bandwidth the markers need
-    const countriesLoaded = Promise.resolve(tunersLoaded).catch(() => {}).then(loadCountries);
+    const countriesLoaded = loadCountries();
 
     const countryCode = new URLSearchParams(window.location.search).get('country');
     if (countryCode) {
@@ -163,19 +164,60 @@ function openMenu() {
     $('.panel-content-all').addClass('open');
 }
 
-function getTuners() {
-    $.get("./api/", function (data) {
-    //return $.get("./data.json", function (data) { // DEBUGGING PURPOSES
-        tunersOnline = ('dataset' in data) ? data['dataset'] : [];
-        addMarkers(tunersOnline);
-    });
+// Calls onChunk with each Uint8Array chunk of the response as it arrives
+async function streamFetch(url, onChunk) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(url + ': HTTP ' + response.status);
+    const reader = response.body.getReader();
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) return;
+        onChunk(value);
+    }
+}
+
+async function getTuners() {
+    const decoder = new TextDecoder();
+    let text = '', i = 0, depth = 0, start = 0, inString = false, escaped = false;
+    try {
+        await streamFetch("./api/", chunk => {
+        //await streamFetch("./data.json", chunk => { // DEBUGGING PURPOSES
+            text += decoder.decode(chunk, { stream: true });
+            const batch = [];
+            for (; i < text.length; i++) {
+                const c = text[i];
+                if (inString) {
+                    if (escaped) escaped = false;
+                    else if (c === '\\') escaped = true;
+                    else if (c === '"') inString = false;
+                } else if (c === '"') {
+                    inString = true;
+                } else if (c === '{' || c === '[') {
+                    if (depth++ === 2) start = i;
+                } else if (c === '}' || c === ']') {
+                    if (--depth === 2) batch.push(JSON.parse(text.slice(start, i + 1)));
+                }
+            }
+
+            const keep = depth > 2 ? start : i;
+            text = text.slice(keep);
+            i -= keep;
+            start -= keep;
+            if (batch.length) {
+                addMarkers(batch);
+                hideLoader();
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching tuners:', error);
+    }
+    populateTunerList(tunersOnline);
+    hideLoader();
 }
 
 function populateTunerList(tunersOnline) {
-    // Clear existing tuners, keeping the .no-content placeholder
     $('.tuner-list .tuner').remove();
 
-    // Server fields come from third-party owners, so escape everything
     const html = tunersOnline.map((tuner, index) => {
         const e = v => escapeHtml(String(v ?? ''));
         return `<div class="tuner tuner-status-${e(tuner.status)}" tabindex="0" data-index="${index}" data-search="${e(`${tuner.country} ${tuner.name} ${tuner.url} ${tuner.status} ${tuner.version} ${tuner.tuner}`)}">
@@ -187,14 +229,13 @@ function populateTunerList(tunersOnline) {
     }).join('');
     $('.tuner-list').append(html);
 
-    filterTuners(""); // fills the list's status counters even if the list is never opened via the bottom bar
+    filterTuners("");
 
     $('.tuner').on('click', function () {
         const index = $(this).data('index');
         onTunerClick(index);
     });
 
-    // Add keyboard navigation
     let currentFocusIndex = -1;
 
     function setFocus(index) {
@@ -206,7 +247,7 @@ function populateTunerList(tunersOnline) {
     }
 
     $(document).on('keydown', function (e) {
-        if ($(e.target).is('input, textarea')) return; // don't hijack keys while typing
+        if ($(e.target).is('input, textarea')) return;
         const tuners = $('.tuner');
         switch (e.key) {
             case 'ArrowDown':
@@ -493,10 +534,7 @@ async function loadCountries() {
     }
 
     try {
-        const reader = (await fetch('countries.pbf')).body.getReader();
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+        await streamFetch('countries.pbf', value => {
             // Keep only the unparsed tail plus the new chunk (header is copied out once found)
             const tail = buf.subarray(pos);
             buf = new Uint8Array(tail.length + value.length);
@@ -504,7 +542,7 @@ async function loadCountries() {
             buf.set(value, tail.length);
             pos = 0;
             drainFeatures();
-        }
+        });
     } catch (error) {
         console.error('Error fetching GeoJSON data:', error);
     }
@@ -521,13 +559,7 @@ function fadeInCountries(layers) {
     });
 }
 
-function addMarkers(tuners) {
-    serversPerCountry = {};
-    tuners.forEach(tuner => {
-        const code = String(tuner.country ?? '').toLowerCase();
-        serversPerCountry[code] = (serversPerCountry[code] || 0) + 1;
-    });
-
+function createClusterGroups() {
     const statusTypes = ["0", "1", "2", "unknown"];
     statusTypes.forEach(status => {
         const clusterGroup = L.markerClusterGroup({
@@ -562,9 +594,16 @@ function addMarkers(tuners) {
 
         clustersByStatus[status] = clusterGroup;
     });
+}
 
-    var markerPositions = [];
-    tuners.forEach((tuner, index) => {
+// Adds a batch of streamed tuners; called repeatedly while the tuner list downloads
+function addMarkers(tuners) {
+    const added = new Map(); // clusterGroup -> markers, added in one go per group
+    tuners.forEach(tuner => {
+        const index = tunersOnline.push(tuner) - 1;
+        const code = String(tuner.country ?? '').toLowerCase();
+        serversPerCountry[code] = (serversPerCountry[code] || 0) + 1;
+
         if (tuner.coords && tuner.coords.length === 2) {
             var latitude = parseFloat(tuner.coords[0]);
             var longitude = parseFloat(tuner.coords[1]);
@@ -576,7 +615,7 @@ function addMarkers(tuners) {
                 let attempts = 0;
 
                 while (!adjusted && attempts < 10) {
-                    let tooClose = markerPositions.some(pos => isTooClose(latitude, longitude, pos.lat, pos.lon));
+                    let tooClose = allMarkers.some(({ marker }) => isTooClose(latitude, longitude, marker.getLatLng().lat, marker.getLatLng().lng));
                     if (tooClose) {
                         const { offsetLat, offsetLon } = getRandomOffset();
                         latitude += offsetLat;
@@ -616,24 +655,21 @@ function addMarkers(tuners) {
                 marker.on('click', function () {onTunerClick(index);});
                 marker.on('mouseover', function () {isMarkerHovered = true;});
                 marker.on('mouseout', function () {isMarkerHovered = false;});
+                // Fade in the first time the marker is drawn (not on every re-cluster)
+                marker.once('add', function () {
+                    marker.getElement()?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: 'ease-out' });
+                });
 
                 const statusClusterGroup = clustersByStatus[tuner.status] || clustersByStatus["unknown"];
-                statusClusterGroup.addLayer(marker);
+                if (!added.has(statusClusterGroup)) added.set(statusClusterGroup, []);
+                added.get(statusClusterGroup).push(marker);
                 allMarkers.push({ marker: marker, clusterGroup: statusClusterGroup });
-                markerPositions.push({ lat: latitude, lon: longitude });
             }
         }
     });
 
-    for (let status in clustersByStatus) {
-        map.addLayer(clustersByStatus[status]);
-    }
-
-    filterMarkers();
-    populateTunerList(tunersOnline);
-
-    hideLoader();
-    map.getPane('markerPane').animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: 'ease-out' });
+    added.forEach((markers, clusterGroup) => clusterGroup.addLayers(markers));
+    filterMarkers(); // removes hidden statuses and puts non-empty groups on the map
 }
 
 function filterMarkers() {
