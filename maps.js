@@ -652,10 +652,6 @@ function addMarkers(tuners) {
                 marker.on('click', function () {onTunerClick(index);});
                 marker.on('mouseover', function () {isMarkerHovered = true;});
                 marker.on('mouseout', function () {isMarkerHovered = false;});
-                // Fade in the first time the marker is drawn (not on every re-cluster)
-                marker.once('add', function () {
-                    marker.getElement()?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: 'ease-out' });
-                });
 
                 const statusClusterGroup = clustersByStatus[tuner.status] || clustersByStatus["unknown"];
                 if (!added.has(statusClusterGroup)) added.set(statusClusterGroup, []);
@@ -667,6 +663,12 @@ function addMarkers(tuners) {
 
     added.forEach((markers, clusterGroup) => clusterGroup.addLayers(markers));
     filterMarkers(); // removes hidden statuses and puts non-empty groups on the map
+
+    // Fade in only what this batch put on screen; markers revealed later by zooming just appear,
+    // otherwise every zoom into a new area starts dozens of animations while the user is moving
+    added.forEach(markers => markers.forEach(marker => {
+        marker.getElement()?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: 'ease-out' });
+    }));
 }
 
 function filterMarkers() {
