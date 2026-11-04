@@ -62,6 +62,7 @@ $(document).ready(function () {
     // countries file would grab the connection first on slow links (3g or someone who maybe uses 2g? y'all crazy) - we wanna see tuners instead of the countries first
     const tunersLoaded = getTuners();
     const countriesLoaded = tunersLoaded.then(loadCountries);
+    countriesLoaded.then(hideLoader, hideLoader);
 
     const countryCode = new URLSearchParams(window.location.search).get('country');
     if (countryCode) {
@@ -133,15 +134,12 @@ $(document).ready(function () {
           const focusedButton = $(':focus');
           
           if (focusedButton.hasClass('button')) {
-            // Trigger click on the focused button
             focusedButton.click();
             
-            // Check if the button clicked is the .open-tuners button
             if (focusedButton.is('.open-tuners')) {
-              // Delay focusing on the .tuner-list to allow it to appear
               setTimeout(function() {
                 $('.tuner-list').focus();
-              }, 100); // 100 milliseconds delay (adjust as needed)
+              }, 100);
             }
           }
         }
@@ -155,7 +153,7 @@ function showLoader() {
 }
 
 function hideLoader() {
-    loader.hide();
+    loader.fadeOut(400);
 }
 
 function openMenu() {
@@ -205,14 +203,13 @@ async function getTuners() {
             start -= keep;
             if (batch.length) {
                 addMarkers(batch);
-                hideLoader();
             }
         });
     } catch (error) {
         console.error('Error fetching tuners:', error);
     }
     populateTunerList(tunersOnline);
-    hideLoader();
+    loader.fadeTo(400, 0.4); // receivers done, countries still streaming
 }
 
 function populateTunerList(tunersOnline) {

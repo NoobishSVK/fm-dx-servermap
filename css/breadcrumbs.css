@@ -128,23 +128,25 @@ label {
 }
 
 
-  #loader {
+#loader {
     position: fixed;
-    top: 50%;
+    bottom: 96px; /* just above the 64px bottom bar at bottom: 20px */
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     z-index: 9999;
-    background-color: #aaa;
-    padding: 10px;
+    background-color: #333c;
+    backdrop-filter: blur(5px);
+    border-radius: 10px;
+    padding: 16px;
 }
 
 .spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
+    border: 4px solid #ffffff1a;
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    border-left-color: #000;
-    animation: spin 1s ease infinite;
+    border-left-color: #ccc;
+    animation: spin 1s linear infinite;
 }
 
 .tuner-button {
