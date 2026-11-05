@@ -549,7 +549,7 @@ async function loadCountries() {
 function fadeInCountries(layers) {
     const start = performance.now();
     requestAnimationFrame(function step(now) {
-        const t = Math.min((now - start) / 400, 1);
+        const t = Math.min((now - start) / 200, 1);
         const k = 1 - Math.pow(1 - t, 3); // ease-out cubic
         layers.forEach(layer => layer !== hoveredCountry && layer.setStyle({ opacity: k, fillOpacity: k }));
         if (t < 1) requestAnimationFrame(step);
@@ -664,8 +664,6 @@ function addMarkers(tuners) {
     added.forEach((markers, clusterGroup) => clusterGroup.addLayers(markers));
     filterMarkers(); // removes hidden statuses and puts non-empty groups on the map
 
-    // Fade in only what this batch put on screen; markers revealed later by zooming just appear,
-    // otherwise every zoom into a new area starts dozens of animations while the user is moving
     added.forEach(markers => markers.forEach(marker => {
         marker.getElement()?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: 'ease-out' });
     }));
