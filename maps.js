@@ -314,23 +314,10 @@ function onTunerClick(index) {
     $('#current-tuner-limits').text(currentMarker.bwLimit?.length > 1 ? currentMarker.bwLimit : 'None');
     currentMarker.version ? $('#current-tuner-version').text('FM-DX Webserver v' + currentMarker.version) : null;
     currentMarker.contact?.length > 0 ? $('#current-tuner-contact').text(currentMarker.contact) : $('#current-tuner-contact').text('No contact available.');
-    if (currentMarker.os.includes("Linux") || currentMarker.os.includes("Windows") || currentMarker.os.includes("Darwin")) {
-        function getOsIcon(os) {
-            if (os.includes("Linux")) {
-                return '<i class="fab fa-linux"></i> ';
-            } else if (os.includes("Darwin")) {
-                return '<i class="fab fa-apple"></i> ';
-            } else {
-                return '<i class="fab fa-windows"></i> ';
-            }
-        }
-        
-        const icon = getOsIcon(currentMarker.os);
-        
-        currentMarker.os?.length > 0 
-            ? $('#current-tuner-version').append('<br>[', icon, document.createTextNode(currentMarker.os), ']')
-            : null;
-    }    
+
+    const os = [['Linux', 'Linux', 'linux'], ['Windows', 'Windows', 'windows'], ['Darwin', 'Mac OS', 'apple']]
+        .find(([key]) => currentMarker.os?.includes(key));
+    if (os) $('#current-tuner-version').append(` on ${os[1]} <i class="fab fa-${os[2]}"></i> `);
 
     $('#current-tuner-bitrate').text(currentMarker.audioQuality);
 
